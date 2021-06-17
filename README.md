@@ -1,2 +1,4 @@
 # expr
-expression eval
+
+    cc nobuild.c -o nobuild
+    ./nobuild
