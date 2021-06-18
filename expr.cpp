@@ -25,7 +25,6 @@
 
 #include <iostream>
 #include <variant>
-#include <cassert>
 #include <string>
 #include <vector>
 #include <memory>
@@ -35,7 +34,14 @@ typedef unsigned int size;
 
 bool is_digit(char c);
 size char_to_digit(char c);
-size string_to_size(const std::string &str);
+bool string_to_size(const std::string &str, size *out);
+
+template <typename... Args>
+[[noreturn]] void runtime_error(const char* fmt, Args... args)
+{
+    printf(fmt, args...);
+    exit(1);
+}
 
 // https://stackoverflow.com/a/26221725/13169325
 template <typename... Args>
@@ -129,7 +135,9 @@ struct Lexer
                 next_char();
             size length = position - start;
             std::string text = this->text.substr(start, length);
-            size value = string_to_size(text);
+            size value = 0;
+            if (!string_to_size(text, &value))
+                errors.push_back(format("[ERROR] the number '%s' isn't valid unsigned int", text.c_str()));
             return Token(Kind::number, start, text, value);
         }
 
@@ -166,6 +174,7 @@ struct Node
 
 struct Expression : Node
 {
+    virtual ~Expression() = default;
 };
 
 struct NumberExpr : Expression
@@ -178,21 +187,21 @@ struct NumberExpr : Expression
 
 struct BinaryExpr : Expression
 {
-    Expression left;
+    Expression* left;
     Token op;
-    Expression right;
+    Expression* right;
     Kind kind;
 
-    BinaryExpr(Expression left, Token op, Expression right) : left(left), op(op), right(right), kind(Kind::binary_expr) {}
+    BinaryExpr(Expression* left, Token op, Expression* right) : left(left), op(op), right(right), kind(Kind::binary_expr) {}
 };
 
 struct Tree
 {
     std::vector<std::string> errors;
-    Expression root;
+    Expression* root;
     Token eof;
 
-    Tree(const std::vector<std::string>& errors, Expression root, Token eof) : errors(errors), root(root), eof(eof) {}
+    Tree(const std::vector<std::string>& errors, Expression* root, Token eof) : errors(errors), root(root), eof(eof) {}
 };
 
 struct Parser
@@ -210,7 +219,9 @@ struct Parser
         {
             token = lexer.next_token();
             if (token.kind != Kind::space && token.kind != Kind::error)
+            {
                 tokens.push_back(token);
+            }
         } while (token.kind != Kind::eof);
         this->tokens = tokens;
         errors = std::vector(lexer.errors.begin(), lexer.errors.end());
@@ -240,34 +251,52 @@ struct Parser
     {
         Token cur = current();
         if (cur.kind == kind)
+        {
             return next_token();
+        }
         errors.push_back(format("[ERROR] unexpected token: <%s>, expected <%s>", kinds[cur.kind], kinds[kind]));
         return Token(kind, cur.position, "\0", nullptr);
     }
 
-    Expression parse_primary()
+    Expression* parse_primary()
     {
         Token number = match(Kind::number);
-        return NumberExpr(number);
+        return new NumberExpr(number);
     }
 
     Tree parse()
     {
-        Expression expression = parse_expr();
+        Expression* expression = parse_term();
         Token eof = match(Kind::eof);
         return Tree(errors, expression, eof);
     }
 
-    Expression parse_expr()
+    Expression* parse_term()
     {
-        Expression left = parse_primary();
+        Expression* left = parse_factor();
         Token cur = current();
 
         while (cur.kind == Kind::plus || cur.kind == Kind::minus)
         {
             Token op = next_token();
-            Expression right = parse_primary();
-            left = BinaryExpr(left, op, right);
+            Expression* right = parse_factor();
+            left = new BinaryExpr(left, op, right);
+            cur = current();
+        }
+
+        return left;
+    }
+
+    Expression* parse_factor()
+    {
+        Expression* left = parse_primary();
+        Token cur = current();
+
+        while (cur.kind == Kind::star || cur.kind == Kind::forward_slash)
+        {
+            Token op = next_token();
+            Expression* right = parse_primary();
+            left = new BinaryExpr(left, op, right);
             cur = current();
         }
 
@@ -277,19 +306,35 @@ struct Parser
 
 struct Eval
 {
-    Expression root;
+    Expression* root;
 
-    Eval(Expression root) : root(root) {}
+    Eval(Expression* root) : root(root) {}
 
-    // size evaluate()
-    // {
-        // return evaluate_expr(root);
-    // }
+    size evaluate()
+    {
+        return evaluate_expr(root);
+    }
 
-    // size evaluate_expr()
-    // {
-        // if (root)
-    // }
+    size evaluate_expr(Expression* expr)
+    {
+        if (NumberExpr* number_expr = dynamic_cast<NumberExpr*>(expr))
+        {
+            return std::get<size>(number_expr->number.value);
+        }
+        if (BinaryExpr* binary_expr = dynamic_cast<BinaryExpr*>(expr))
+        {
+            size left = evaluate_expr(binary_expr->left);
+            size right = evaluate_expr(binary_expr->right);
+
+            if (binary_expr->op.kind == Kind::plus)          return left + right;
+            if (binary_expr->op.kind == Kind::minus)         return left - right;
+            if (binary_expr->op.kind == Kind::star)          return left * right;
+            if (binary_expr->op.kind == Kind::forward_slash) return left / right;
+
+            runtime_error("unexpected binary operator: %s\n", kinds[binary_expr->kind]);
+        }
+        runtime_error("unexpected expr: %s\n", kinds[expr->kind]);
+    }
 };
 
 bool is_digit(char c)
@@ -302,16 +347,20 @@ size char_to_digit(char c)
     return c - 48;
 }
 
-size string_to_size(const std::string &str)
+bool string_to_size(const std::string &str, size *out)
 {
-    size result = 0;
     size position = 0;
     while (position < str.length())
     {
-        result = result * 10 + char_to_digit(str[position]);
+        size digit = char_to_digit(str[position]);
+        if ((*out * 10 + digit) < *out)
+        {
+            return false;
+        }
+        *out = *out * 10 + digit;
         position++;
     }
-    return result;
+    return true;
 }
 
 int main()
@@ -322,12 +371,24 @@ int main()
         std::string input;
         std::getline(std::cin, input);
         if (input.empty())
+        {
             continue;
+        }
         Parser parser(input);
         Tree tree = parser.parse();
         if (!tree.errors.empty())
+        {
             for (auto &err : tree.errors)
+            {
                 printf("%s\n", err.c_str());
+            }
+        }
+        else
+        {
+            Eval eval(tree.root);
+            size result = eval.evaluate();
+            printf("%d\n", result);
+        }
     }
     return 0;
 }
