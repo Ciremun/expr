@@ -403,7 +403,7 @@ bool string_to_size(const std::string &str, size *out)
 
 int main()
 {
-    for (;;)
+    while (std::cin)
     {
         printf("> ");
         std::string input;
