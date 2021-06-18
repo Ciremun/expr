@@ -69,22 +69,24 @@ enum class Kind
     error,
     eof,
     number_expr,
-    binary_expr
+    binary_expr,
+    paren_expr
 };
 
 std::unordered_map<Kind, const char*> kinds = {
-    {Kind::number,        "number"},
-    {Kind::space,         "space"},
-    {Kind::plus,          "plus"},
-    {Kind::minus,         "minus"},
-    {Kind::star,          "star"},
-    {Kind::forward_slash, "forward_slash"},
-    {Kind::open_paren,    "open_paren"},
-    {Kind::close_parent,  "close_parent"},
-    {Kind::error,         "error"},
-    {Kind::eof,           "eof"},
-    {Kind::number_expr,   "number_expr"},
-    {Kind::binary_expr,   "binary_expr"}
+    { Kind::number,        "number"        },
+    { Kind::space,         "space"         },
+    { Kind::plus,          "plus"          },
+    { Kind::minus,         "minus"         },
+    { Kind::star,          "star"          },
+    { Kind::forward_slash, "forward_slash" },
+    { Kind::open_paren,    "open_paren"    },
+    { Kind::close_parent,  "close_parent"  },
+    { Kind::error,         "error"         },
+    { Kind::eof,           "eof"           },
+    { Kind::number_expr,   "number_expr"   },
+    { Kind::binary_expr,   "binary_expr"   },
+    { Kind::paren_expr,    "paren_expr"    }
 };
 
 struct Token
@@ -195,6 +197,17 @@ struct BinaryExpr : Expression
     BinaryExpr(Expression* left, Token op, Expression* right) : left(left), op(op), right(right), kind(Kind::binary_expr) {}
 };
 
+struct ParenExpr : Expression
+{
+    Token open_paren;
+    Expression* expr;
+    Token close_paren;
+    Kind kind;
+
+    ParenExpr(Token open_paren, Expression* expr, Token close_paren)
+        : open_paren(open_paren), expr(expr), close_paren(close_paren), kind(Kind::paren_expr) {}
+};
+
 struct Tree
 {
     std::vector<std::string> errors;
@@ -202,6 +215,8 @@ struct Tree
     Token eof;
 
     Tree(const std::vector<std::string>& errors, Expression* root, Token eof) : errors(errors), root(root), eof(eof) {}
+
+    Tree parse(std::string text);
 };
 
 struct Parser
@@ -258,8 +273,21 @@ struct Parser
         return Token(kind, cur.position, "\0", nullptr);
     }
 
+    Expression* parse_expr()
+    {
+        return parse_term();
+    }
+
     Expression* parse_primary()
     {
+        if (current().kind == Kind::open_paren)
+        {
+            Token left = next_token();
+            Expression* expr = parse_expr();
+            Token right = match(Kind::close_parent);
+            return new ParenExpr(left, expr, right);
+        }
+
         Token number = match(Kind::number);
         return new NumberExpr(number);
     }
@@ -304,6 +332,12 @@ struct Parser
     }
 };
 
+Tree Tree::parse(std::string text)
+{
+    Parser parser(text);
+    return parser.parse();
+}
+
 struct Eval
 {
     Expression* root;
@@ -332,6 +366,10 @@ struct Eval
             if (binary_expr->op.kind == Kind::forward_slash) return left / right;
 
             runtime_error("unexpected binary operator: %s\n", kinds[binary_expr->kind]);
+        }
+        if (ParenExpr* paren_expr = dynamic_cast<ParenExpr*>(expr))
+        {
+            return evaluate_expr(paren_expr->expr);
         }
         runtime_error("unexpected expr: %s\n", kinds[expr->kind]);
     }
@@ -374,8 +412,7 @@ int main()
         {
             continue;
         }
-        Parser parser(input);
-        Tree tree = parser.parse();
+        Tree tree = tree.parse(input);
         if (!tree.errors.empty())
         {
             for (auto &err : tree.errors)
