@@ -1,11 +1,20 @@
 #define NOBUILD_IMPLEMENTATION
 #include "nobuild.h"
 
-#define CFLAGS "-Wall", "-Wextra", "-std=c++17", "-pedantic"
+#define CFLAGS "-Wall", "-Wextra", "-pedantic", "-std=c++17"
 
-int main(void)
+void run()
 {
-    char* cc = getenv("cc");
+#ifdef _WIN32
+    CMD(".\\expr.exe");
+#else
+    CMD("./expr");
+#endif
+}
+
+int main(int argc, char **argv)
+{
+    char *cc = getenv("cc");
 #ifdef _WIN32
     if (cc == NULL || strcmp(cc, "cl") == 0 || strcmp(cc, "cl.exe") == 0)
         CMD("cl.exe", "expr.cpp", "/std:c++17", "/Feexpr.exe");
@@ -17,4 +26,5 @@ int main(void)
     else
         CMD(cc, CFLAGS, "expr.cpp", "-oexpr");
 #endif
+    if (argc > 1 && strcmp(argv[1], "run") == 0) run();
 }
