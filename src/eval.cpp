@@ -9,12 +9,10 @@ size Eval::evaluate()
 
 size Eval::evaluate_expr(Expression* expr)
 {
-    if (LiteralExpr* literal_expr = dynamic_cast<LiteralExpr*>(expr))
-    {
+    if (LiteralExpr* literal_expr = dynamic_cast<LiteralExpr*>(expr)) {
         return std::get<size>(literal_expr->literal.value);
     }
-    if (BinaryExpr* binary_expr = dynamic_cast<BinaryExpr*>(expr))
-    {
+    if (BinaryExpr* binary_expr = dynamic_cast<BinaryExpr*>(expr)) {
         size left = evaluate_expr(binary_expr->left);
         size right = evaluate_expr(binary_expr->right);
 
@@ -25,8 +23,7 @@ size Eval::evaluate_expr(Expression* expr)
 
         runtime_error("unexpected binary operator: %s\n", kinds[binary_expr->kind]);
     }
-    if (ParenExpr* paren_expr = dynamic_cast<ParenExpr*>(expr))
-    {
+    if (ParenExpr* paren_expr = dynamic_cast<ParenExpr*>(expr)) {
         return evaluate_expr(paren_expr->expr);
     }
     runtime_error("unexpected expr: %s\n", kinds[expr->kind]);

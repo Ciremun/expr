@@ -10,8 +10,7 @@
 #include "kind.h"
 #include "typedef.h"
 
-struct Parser
-{
+struct Parser {
     std::vector<Token> tokens;
     std::vector<std::string> errors;
     size position = 0;

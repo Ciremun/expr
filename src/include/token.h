@@ -7,8 +7,7 @@
 #include "kind.h"
 #include "typedef.h"
 
-struct Token
-{
+struct Token {
     using Value = std::variant<size, int, float, bool, const char *, std::string>;
 
     Kind kind = Kind::error_token;

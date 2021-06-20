@@ -6,25 +6,19 @@
 
 int main()
 {
-    while (std::cin)
-    {
+    while (std::cin) {
         printf("> ");
         std::string input;
         std::getline(std::cin, input);
-        if (input.empty())
-        {
+        if (input.empty()) {
             continue;
         }
         Tree tree = tree.parse(input);
-        if (!tree.errors.empty())
-        {
-            for (auto &err : tree.errors)
-            {
+        if (!tree.errors.empty()) {
+            for (auto &err : tree.errors) {
                 printf("%s\n", err.c_str());
             }
-        }
-        else
-        {
+        } else {
             Eval eval(tree.root);
             size result = eval.evaluate();
             printf("%lld\n", result);

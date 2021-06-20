@@ -7,8 +7,7 @@
 #include "token.h"
 #include "typedef.h"
 
-struct Lexer
-{
+struct Lexer {
     std::string text;
     size position = 0;
     std::vector<std::string> errors;

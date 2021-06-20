@@ -4,8 +4,7 @@
 #include "expression.h"
 #include "typedef.h"
 
-struct Eval
-{
+struct Eval {
     Expression* root;
 
     Eval(Expression* root);

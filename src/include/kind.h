@@ -1,8 +1,7 @@
 #ifndef KIND_H
 #define KIND_H
 
-enum Kind: int
-{
+enum Kind: int {
     eof_token,
     error_token,
     number_token,

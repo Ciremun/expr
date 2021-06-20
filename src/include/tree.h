@@ -7,8 +7,7 @@
 #include "expression.h"
 #include "token.h"
 
-struct Tree
-{
+struct Tree {
     std::vector<std::string> errors;
     Expression* root;
     Token eof;

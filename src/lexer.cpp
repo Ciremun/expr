@@ -26,8 +26,7 @@ Token Lexer::lex()
 
     char current = current_char();
 
-    if (is_digit(current))
-    {
+    if (is_digit(current)) {
         size start = position;
         next_char();
         while (is_digit(current_char()))
@@ -40,8 +39,7 @@ Token Lexer::lex()
         return Token(Kind::number_token, start, text, value);
     }
 
-    if (current == ' ')
-    {
+    if (current == ' ') {
         size start = position;
         next_char();
         while (current_char() == ' ')
@@ -54,14 +52,19 @@ Token Lexer::lex()
     int temp = position;
     position++;
 
-    switch (current)
-    {
-        case '+': return Token(Kind::plus_token,          temp, "+", nullptr);
-        case '-': return Token(Kind::minus_token,         temp, "-", nullptr);
-        case '*': return Token(Kind::star_token,          temp, "*", nullptr);
-        case '/': return Token(Kind::forward_slash_token, temp, "/", nullptr);
-        case '(': return Token(Kind::open_paren_token,    temp, "(", nullptr);
-        case ')': return Token(Kind::close_paren_token,   temp, ")", nullptr);
+    switch (current) {
+    case '+':
+        return Token(Kind::plus_token,          temp, "+", nullptr);
+    case '-':
+        return Token(Kind::minus_token,         temp, "-", nullptr);
+    case '*':
+        return Token(Kind::star_token,          temp, "*", nullptr);
+    case '/':
+        return Token(Kind::forward_slash_token, temp, "/", nullptr);
+    case '(':
+        return Token(Kind::open_paren_token,    temp, "(", nullptr);
+    case ')':
+        return Token(Kind::close_paren_token,   temp, ")", nullptr);
     }
 
     errors.push_back(format("[ERROR] bad input char: '%c'", current));

@@ -5,11 +5,9 @@ Parser::Parser(std::string text)
     std::vector<Token> tokens;
     Lexer lexer(text);
     Token token;
-    do
-    {
+    do {
         token = lexer.lex();
-        if (token.kind != Kind::space_token && token.kind != Kind::error_token)
-        {
+        if (token.kind != Kind::space_token && token.kind != Kind::error_token) {
             tokens.push_back(token);
         }
     } while (token.kind != Kind::eof_token);
@@ -40,8 +38,7 @@ Token Parser::next_token()
 Token Parser::match_token(Kind kind)
 {
     Token cur = current();
-    if (cur.kind == kind)
-    {
+    if (cur.kind == kind) {
         return next_token();
     }
     errors.push_back(format("[ERROR] unexpected token: <%s>, expected <%s>", kinds[cur.kind], kinds[kind]));
@@ -55,8 +52,7 @@ Expression* Parser::parse_expr()
 
 Expression* Parser::parse_primary()
 {
-    if (current().kind == Kind::open_paren_token)
-    {
+    if (current().kind == Kind::open_paren_token) {
         Token left = next_token();
         Expression* expr = parse_expr();
         Token right = match_token(Kind::close_paren_token);
@@ -79,8 +75,7 @@ Expression* Parser::parse_term()
     Expression* left = parse_factor();
     Token cur = current();
 
-    while (cur.kind == Kind::plus_token || cur.kind == Kind::minus_token)
-    {
+    while (cur.kind == Kind::plus_token || cur.kind == Kind::minus_token) {
         Token op = next_token();
         Expression* right = parse_factor();
         left = new BinaryExpr(left, op, right);
@@ -95,8 +90,7 @@ Expression* Parser::parse_factor()
     Expression* left = parse_primary();
     Token cur = current();
 
-    while (cur.kind == Kind::star_token || cur.kind == Kind::forward_slash_token)
-    {
+    while (cur.kind == Kind::star_token || cur.kind == Kind::forward_slash_token) {
         Token op = next_token();
         Expression* right = parse_primary();
         left = new BinaryExpr(left, op, right);

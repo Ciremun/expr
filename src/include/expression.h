@@ -4,26 +4,22 @@
 #include "kind.h"
 #include "token.h"
 
-struct Node
-{
+struct Node {
     Kind kind = Kind::error_token;
 };
 
-struct Expression : Node
-{
+struct Expression : Node {
     virtual ~Expression() = default;
 };
 
-struct LiteralExpr : Expression
-{
+struct LiteralExpr : Expression {
     Kind kind;
     Token literal;
 
     LiteralExpr(Token literal);
 };
 
-struct BinaryExpr : Expression
-{
+struct BinaryExpr : Expression {
     Expression* left;
     Token op;
     Expression* right;
@@ -32,8 +28,7 @@ struct BinaryExpr : Expression
     BinaryExpr(Expression* left, Token op, Expression* right);
 };
 
-struct ParenExpr : Expression
-{
+struct ParenExpr : Expression {
     Token open_paren;
     Expression* expr;
     Token close_paren;
