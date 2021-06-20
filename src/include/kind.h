@@ -15,7 +15,7 @@ enum Kind: int
     star,
     forward_slash,
 
-    number_expr,
+    literal_expr,
     binary_expr,
     paren_expr
 };
@@ -33,7 +33,7 @@ constexpr const char* kinds[] = {
     "star",
     "forward_slash",
 
-    "number_expr",
+    "literal_expr",
     "binary_expr",
     "paren_expr"
 };
