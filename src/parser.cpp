@@ -37,7 +37,7 @@ Token Parser::next_token()
     return cur;
 }
 
-Token Parser::match(Kind kind)
+Token Parser::match_token(Kind kind)
 {
     Token cur = current();
     if (cur.kind == kind)
@@ -59,7 +59,7 @@ Expression* Parser::parse_primary()
     {
         Token left = next_token();
         Expression* expr = parse_expr();
-        Token right = match(Kind::close_parent);
+        Token right = match(Kind::close_paren);
         return new ParenExpr(left, expr, right);
     }
 
@@ -69,7 +69,7 @@ Expression* Parser::parse_primary()
 
 Tree Parser::parse()
 {
-    Expression* expression = parse_term();
+    Expression* expression = parse_expr();
     Token eof = match(Kind::eof);
     return Tree(errors, expression, eof);
 }

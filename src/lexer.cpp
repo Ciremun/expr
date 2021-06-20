@@ -59,7 +59,7 @@ Token Lexer::next_token()
     if (current == '*') return Token(Kind::star,          temp, "*", nullptr);
     if (current == '/') return Token(Kind::forward_slash, temp, "/", nullptr);
     if (current == '(') return Token(Kind::open_paren,    temp, "(", nullptr);
-    if (current == ')') return Token(Kind::close_parent,  temp, ")", nullptr);
+    if (current == ')') return Token(Kind::close_paren,  temp, ")", nullptr);
 
     errors.push_back(format("[ERROR] bad input char: '%c'", current));
     return Token(Kind::error, temp, text.substr(temp, 1), nullptr);

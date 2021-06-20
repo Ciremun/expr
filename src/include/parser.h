@@ -20,7 +20,7 @@ struct Parser
     Token peek(size offset);
     Token current();
     Token next_token();
-    Token match(Kind kind);
+    Token match_token(Kind kind);
     Expression* parse_expr();
     Expression* parse_primary();
     Tree parse();
