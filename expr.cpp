@@ -28,7 +28,6 @@
 #include <string>
 #include <vector>
 #include <memory>
-#include <unordered_map>
 
 typedef unsigned int size;
 
@@ -56,7 +55,7 @@ std::string format(const std::string &format, Args... args)
     return std::string(buf.get(), buf.get() + size - 1);
 }
 
-enum class Kind
+enum Kind: int
 {
     number,
     space,
@@ -73,20 +72,20 @@ enum class Kind
     paren_expr
 };
 
-std::unordered_map<Kind, const char*> kinds = {
-    { Kind::number,        "number"        },
-    { Kind::space,         "space"         },
-    { Kind::plus,          "plus"          },
-    { Kind::minus,         "minus"         },
-    { Kind::star,          "star"          },
-    { Kind::forward_slash, "forward_slash" },
-    { Kind::open_paren,    "open_paren"    },
-    { Kind::close_parent,  "close_parent"  },
-    { Kind::error,         "error"         },
-    { Kind::eof,           "eof"           },
-    { Kind::number_expr,   "number_expr"   },
-    { Kind::binary_expr,   "binary_expr"   },
-    { Kind::paren_expr,    "paren_expr"    }
+constexpr const char* kinds[] = {
+    "number",
+    "space",
+    "plus",
+    "minus",
+    "star",
+    "forward_slash",
+    "open_paren",
+    "close_parent" ,
+    "error",
+    "eof",
+    "number_expr",
+    "binary_expr",
+    "paren_expr"
 };
 
 struct Token
