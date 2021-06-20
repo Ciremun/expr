@@ -5,7 +5,7 @@ Token::Token()
 {
 }
 
-Token::Token(Kind kind, size_t position, std::string text, Value value)
+Token::Token(Kind kind, size position, std::string text, Value value)
     : kind(kind), position(position), text(text), value(value)
 {
 }

@@ -5,11 +5,12 @@
 #include <vector>
 
 #include "token.h"
+#include "typedef.h"
 
 struct Lexer
 {
     std::string text;
-    size_t position = 0;
+    size position = 0;
     std::vector<std::string> errors;
 
     Lexer(std::string text);

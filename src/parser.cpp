@@ -17,9 +17,9 @@ Parser::Parser(std::string text)
     errors = std::vector(lexer.errors.begin(), lexer.errors.end());
 }
 
-Token Parser::peek(size_t offset)
+Token Parser::peek(size offset)
 {
-    size_t index = position + offset;
+    size index = position + offset;
     if (index >= tokens.size())
         return tokens[tokens.size() - 1];
     return tokens[index];

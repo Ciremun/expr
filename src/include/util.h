@@ -6,9 +6,11 @@
 #include <cstdio>
 #include <stdexcept>
 
+#include "typedef.h"
+
 bool is_digit(char c);
-size_t char_to_digit(char c);
-bool string_to_size(const std::string &str, size_t *out);
+size char_to_digit(char c);
+bool string_to_size(const std::string &str, size *out);
 
 template <typename... Args>
 [[noreturn]] void runtime_error(const char *fmt, Args... args)
@@ -24,9 +26,9 @@ std::string format(const std::string &format, Args... args)
     int size_s = std::snprintf(nullptr, 0, format.c_str(), args...) + 1;
     if (size_s <= 0)
         throw std::runtime_error("Error during formatting.");
-    auto size = static_cast<size_t>(size_s);
-    auto buf = std::make_unique<char[]>(size);
-    std::snprintf(buf.get(), size, format.c_str(), args...);
-    return std::string(buf.get(), buf.get() + size - 1);
+    auto sz = static_cast<size>(size_s);
+    auto buf = std::make_unique<char[]>(sz);
+    std::snprintf(buf.get(), sz, format.c_str(), args...);
+    return std::string(buf.get(), buf.get() + sz - 1);
 }
 #endif // UTIL_H

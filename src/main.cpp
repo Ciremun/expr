@@ -26,7 +26,7 @@ int main()
         else
         {
             Eval eval(tree.root);
-            size_t result = eval.evaluate();
+            size result = eval.evaluate();
             printf("%lld\n", result);
         }
     }

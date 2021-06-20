@@ -28,13 +28,13 @@ Token Lexer::next_token()
 
     if (is_digit(current))
     {
-        size_t start = position;
+        size start = position;
         next_char();
         while (is_digit(current_char()))
             next_char();
-        size_t length = position - start;
+        size length = position - start;
         std::string text = this->text.substr(start, length);
-        size_t value = 0;
+        size value = 0;
         if (!string_to_size(text, &value))
             errors.push_back(format("[ERROR] the number '%s' isn't valid size", text.c_str()));
         return Token(Kind::number, start, text, value);
@@ -42,11 +42,11 @@ Token Lexer::next_token()
 
     if (current == ' ')
     {
-        size_t start = position;
+        size start = position;
         next_char();
         while (current_char() == ' ')
             next_char();
-        size_t length = position - start;
+        size length = position - start;
         std::string text = this->text.substr(start, length);
         return Token(Kind::space, start, text, nullptr);
     }

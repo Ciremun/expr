@@ -2,21 +2,21 @@
 
 Eval::Eval(Expression* root) : root(root) {}
 
-size_t Eval::evaluate()
+size Eval::evaluate()
 {
     return evaluate_expr(root);
 }
 
-size_t Eval::evaluate_expr(Expression* expr)
+size Eval::evaluate_expr(Expression* expr)
 {
     if (NumberExpr* number_expr = dynamic_cast<NumberExpr*>(expr))
     {
-        return std::get<size_t>(number_expr->number.value);
+        return std::get<size>(number_expr->number.value);
     }
     if (BinaryExpr* binary_expr = dynamic_cast<BinaryExpr*>(expr))
     {
-        size_t left = evaluate_expr(binary_expr->left);
-        size_t right = evaluate_expr(binary_expr->right);
+        size left = evaluate_expr(binary_expr->left);
+        size right = evaluate_expr(binary_expr->right);
 
         if (binary_expr->op.kind == Kind::plus)          return left + right;
         if (binary_expr->op.kind == Kind::minus)         return left - right;

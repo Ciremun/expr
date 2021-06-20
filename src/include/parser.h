@@ -8,15 +8,16 @@
 #include "expression.h"
 #include "tree.h"
 #include "kind.h"
+#include "typedef.h"
 
 struct Parser
 {
     std::vector<Token> tokens;
     std::vector<std::string> errors;
-    size_t position = 0;
+    size position = 0;
 
     Parser(std::string text);
-    Token peek(size_t offset);
+    Token peek(size offset);
     Token current();
     Token next_token();
     Token match(Kind kind);
