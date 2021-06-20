@@ -16,7 +16,7 @@ struct Lexer
     Lexer(std::string text);
     char current_char();
     void next_char();
-    Token next_token();
+    Token lex();
 };
 
 #endif // LEXER_H

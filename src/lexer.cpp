@@ -19,7 +19,7 @@ void Lexer::next_char()
     position++;
 }
 
-Token Lexer::next_token()
+Token Lexer::lex()
 {
     if (position >= text.length())
         return Token(Kind::eof, position, "\0", nullptr);
@@ -54,12 +54,15 @@ Token Lexer::next_token()
     int temp = position;
     position++;
 
-    if (current == '+') return Token(Kind::plus,          temp, "+", nullptr);
-    if (current == '-') return Token(Kind::minus,         temp, "-", nullptr);
-    if (current == '*') return Token(Kind::star,          temp, "*", nullptr);
-    if (current == '/') return Token(Kind::forward_slash, temp, "/", nullptr);
-    if (current == '(') return Token(Kind::open_paren,    temp, "(", nullptr);
-    if (current == ')') return Token(Kind::close_paren,  temp, ")", nullptr);
+    switch (current)
+    {
+        case '+': return Token(Kind::plus,          temp, "+", nullptr);
+        case '-': return Token(Kind::minus,         temp, "-", nullptr);
+        case '*': return Token(Kind::star,          temp, "*", nullptr);
+        case '/': return Token(Kind::forward_slash, temp, "/", nullptr);
+        case '(': return Token(Kind::open_paren,    temp, "(", nullptr);
+        case ')': return Token(Kind::close_paren,   temp, ")", nullptr);
+    }
 
     errors.push_back(format("[ERROR] bad input char: '%c'", current));
     return Token(Kind::error, temp, text.substr(temp, 1), nullptr);
