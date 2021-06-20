@@ -4,16 +4,13 @@
 #define CFLAGS "-Wall", "-Wextra", "-pedantic", "-std=c++17", "-I./src/include/", "-oexpr"
 #define MSVC_FLAGS "/std:c++17", "/Feexpr.exe", "/Isrc/include/"
 
-void run()
+
+void format()
 {
-#ifdef _WIN32
-    CMD(".\\expr.exe");
-#else
-    CMD("./expr");
-#endif
+    CMD("astyle", "src/*.cpp", "src/*.h", "-n", "-r", "--style=kr");
 }
 
-int main(int argc, char **argv)
+void build()
 {
     char *cxx = getenv("CXX");
 #ifdef _WIN32
@@ -27,5 +24,32 @@ int main(int argc, char **argv)
     else
         CMD(cxx, CFLAGS, "src/main.cpp", "src/expr.cpp");
 #endif
-    if (argc > 1 && strcmp(argv[1], "run") == 0) run();
+}
+
+void run()
+{
+#ifdef _WIN32
+    CMD(".\\expr.exe");
+#else
+    CMD("./expr");
+#endif
+}
+
+void process_args(char **argv)
+{
+    if (strcmp(argv[1], "run") == 0) {
+        build();
+        run();
+    } else if (strcmp(argv[1], "format") == 0) {
+        format();
+    }
+    exit(0);
+}
+
+int main(int argc, char **argv)
+{
+    if (argc > 1)
+        process_args(argv);
+    else
+        build();
 }
