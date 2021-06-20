@@ -29,7 +29,7 @@
 #include <vector>
 #include <memory>
 
-typedef unsigned int size;
+typedef size_t size;
 
 bool is_digit(char c);
 size char_to_digit(char c);
@@ -138,7 +138,7 @@ struct Lexer
             std::string text = this->text.substr(start, length);
             size value = 0;
             if (!string_to_size(text, &value))
-                errors.push_back(format("[ERROR] the number '%s' isn't valid unsigned int", text.c_str()));
+                errors.push_back(format("[ERROR] the number '%s' isn't valid size", text.c_str()));
             return Token(Kind::number, start, text, value);
         }
 
@@ -423,7 +423,7 @@ int main()
         {
             Eval eval(tree.root);
             size result = eval.evaluate();
-            printf("%d\n", result);
+            printf("%lld\n", result);
         }
     }
     return 0;
