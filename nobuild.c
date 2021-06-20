@@ -1,7 +1,8 @@
 #define NOBUILD_IMPLEMENTATION
 #include "nobuild.h"
 
-#define CFLAGS "-Wall", "-Wextra", "-pedantic", "-std=c++17"
+#define CFLAGS "-Wall", "-Wextra", "-pedantic", "-std=c++17", "-I./src/include/", "-oexpr"
+#define MSVC_FLAGS "/std:c++17", "/Feexpr.exe", "/Isrc/include/"
 
 void run()
 {
@@ -14,17 +15,17 @@ void run()
 
 int main(int argc, char **argv)
 {
-    char *cc = getenv("cc");
+    char *cxx = getenv("CXX");
 #ifdef _WIN32
-    if (cc == NULL || strcmp(cc, "cl") == 0 || strcmp(cc, "cl.exe") == 0)
-        CMD("cl.exe", "expr.cpp", "/std:c++17", "/Feexpr.exe");
+    if (cxx == NULL || strcmp(cxx, "cl") == 0 || strcmp(cxx, "cl.exe") == 0)
+        CMD("cl.exe", "src/main.cpp", "src/expr.cpp", MSVC_FLAGS);
     else
-        CMD(cc, CFLAGS, "expr.cpp", "-oexpr");
+        CMD(cxx, CFLAGS, "src/main.cpp", "src/expr.cpp");
 #else
-    if (cc == NULL)
-        CMD("g++", CFLAGS, "expr.cpp", "-oexpr");
+    if (cxx == NULL)
+        CMD("g++", CFLAGS, "src/main.cpp", "src/expr.cpp");
     else
-        CMD(cc, CFLAGS, "expr.cpp", "-oexpr");
+        CMD(cxx, CFLAGS, "src/main.cpp", "src/expr.cpp");
 #endif
     if (argc > 1 && strcmp(argv[1], "run") == 0) run();
 }
