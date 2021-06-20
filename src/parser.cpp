@@ -7,7 +7,7 @@ Parser::Parser(std::string text)
     Token token;
     do
     {
-        token = lexer.next_token();
+        token = lexer.lex();
         if (token.kind != Kind::space && token.kind != Kind::error)
         {
             tokens.push_back(token);
