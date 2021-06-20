@@ -52,4 +52,5 @@ int main(int argc, char **argv)
         process_args(argv);
     else
         build();
+    return 0;
 }
