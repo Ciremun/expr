@@ -64,7 +64,7 @@ Expression* Parser::parse_primary()
     }
 
     Token number = match_token(Kind::number);
-    return new NumberExpr(number);
+    return new LiteralExpr(number);
 }
 
 Tree Parser::parse()

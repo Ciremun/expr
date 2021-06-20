@@ -1,7 +1,7 @@
 #include "expression.h"
 
-NumberExpr::NumberExpr(Token number)
-    : kind(Kind::number_expr), number(number)
+LiteralExpr::LiteralExpr(Token literal)
+    : kind(Kind::number), literal(literal)
 {
 }
 

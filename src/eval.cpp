@@ -9,9 +9,9 @@ size Eval::evaluate()
 
 size Eval::evaluate_expr(Expression* expr)
 {
-    if (NumberExpr* number_expr = dynamic_cast<NumberExpr*>(expr))
+    if (LiteralExpr* literal_expr = dynamic_cast<LiteralExpr*>(expr))
     {
-        return std::get<size>(number_expr->number.value);
+        return std::get<size>(literal_expr->literal.value);
     }
     if (BinaryExpr* binary_expr = dynamic_cast<BinaryExpr*>(expr))
     {

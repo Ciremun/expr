@@ -14,12 +14,12 @@ struct Expression : Node
     virtual ~Expression() = default;
 };
 
-struct NumberExpr : Expression
+struct LiteralExpr : Expression
 {
     Kind kind;
-    Token number;
+    Token literal;
 
-    NumberExpr(Token number);
+    LiteralExpr(Token literal);
 };
 
 struct BinaryExpr : Expression
