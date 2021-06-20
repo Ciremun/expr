@@ -23,9 +23,9 @@ struct Parser
     Token match_token(Kind kind);
     Expression* parse_expr();
     Expression* parse_primary();
-    Tree parse();
     Expression* parse_term();
     Expression* parse_factor();
+    Tree parse();
 };
 
 #endif // PARSER_H

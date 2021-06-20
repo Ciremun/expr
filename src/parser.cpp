@@ -59,18 +59,18 @@ Expression* Parser::parse_primary()
     {
         Token left = next_token();
         Expression* expr = parse_expr();
-        Token right = match(Kind::close_paren);
+        Token right = match_token(Kind::close_paren);
         return new ParenExpr(left, expr, right);
     }
 
-    Token number = match(Kind::number);
+    Token number = match_token(Kind::number);
     return new NumberExpr(number);
 }
 
 Tree Parser::parse()
 {
     Expression* expression = parse_expr();
-    Token eof = match(Kind::eof);
+    Token eof = match_token(Kind::eof);
     return Tree(errors, expression, eof);
 }
 
