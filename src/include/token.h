@@ -11,7 +11,7 @@ struct Token
 {
     using Value = std::variant<size, int, float, bool, const char *, std::string>;
 
-    Kind kind = Kind::error;
+    Kind kind = Kind::error_token;
     size position = 0;
     std::string text;
     Value value;

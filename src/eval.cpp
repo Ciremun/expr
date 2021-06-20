@@ -18,10 +18,10 @@ size Eval::evaluate_expr(Expression* expr)
         size left = evaluate_expr(binary_expr->left);
         size right = evaluate_expr(binary_expr->right);
 
-        if (binary_expr->op.kind == Kind::plus)          return left + right;
-        if (binary_expr->op.kind == Kind::minus)         return left - right;
-        if (binary_expr->op.kind == Kind::star)          return left * right;
-        if (binary_expr->op.kind == Kind::forward_slash) return left / right;
+        if (binary_expr->op.kind == Kind::plus_token)          return left + right;
+        if (binary_expr->op.kind == Kind::minus_token)         return left - right;
+        if (binary_expr->op.kind == Kind::star_token)          return left * right;
+        if (binary_expr->op.kind == Kind::forward_slash_token) return left / right;
 
         runtime_error("unexpected binary operator: %s\n", kinds[binary_expr->kind]);
     }

@@ -6,7 +6,7 @@
 
 struct Node
 {
-    Kind kind = Kind::error;
+    Kind kind = Kind::error_token;
 };
 
 struct Expression : Node

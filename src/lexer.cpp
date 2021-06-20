@@ -22,7 +22,7 @@ void Lexer::next_char()
 Token Lexer::lex()
 {
     if (position >= text.length())
-        return Token(Kind::eof, position, "\0", nullptr);
+        return Token(Kind::eof_token, position, "\0", nullptr);
 
     char current = current_char();
 
@@ -37,7 +37,7 @@ Token Lexer::lex()
         size value = 0;
         if (!string_to_size(text, &value))
             errors.push_back(format("[ERROR] the number '%s' isn't valid size", text.c_str()));
-        return Token(Kind::number, start, text, value);
+        return Token(Kind::number_token, start, text, value);
     }
 
     if (current == ' ')
@@ -48,7 +48,7 @@ Token Lexer::lex()
             next_char();
         size length = position - start;
         std::string text = this->text.substr(start, length);
-        return Token(Kind::space, start, text, nullptr);
+        return Token(Kind::space_token, start, text, nullptr);
     }
 
     int temp = position;
@@ -56,14 +56,14 @@ Token Lexer::lex()
 
     switch (current)
     {
-        case '+': return Token(Kind::plus,          temp, "+", nullptr);
-        case '-': return Token(Kind::minus,         temp, "-", nullptr);
-        case '*': return Token(Kind::star,          temp, "*", nullptr);
-        case '/': return Token(Kind::forward_slash, temp, "/", nullptr);
-        case '(': return Token(Kind::open_paren,    temp, "(", nullptr);
-        case ')': return Token(Kind::close_paren,   temp, ")", nullptr);
+        case '+': return Token(Kind::plus_token,          temp, "+", nullptr);
+        case '-': return Token(Kind::minus_token,         temp, "-", nullptr);
+        case '*': return Token(Kind::star_token,          temp, "*", nullptr);
+        case '/': return Token(Kind::forward_slash_token, temp, "/", nullptr);
+        case '(': return Token(Kind::open_paren_token,    temp, "(", nullptr);
+        case ')': return Token(Kind::close_paren_token,   temp, ")", nullptr);
     }
 
     errors.push_back(format("[ERROR] bad input char: '%c'", current));
-    return Token(Kind::error, temp, text.substr(temp, 1), nullptr);
+    return Token(Kind::error_token, temp, text.substr(temp, 1), nullptr);
 }
