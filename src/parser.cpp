@@ -49,8 +49,7 @@ Expression* Parser::parse_expression(int parent_precedence)
 {
     Expression* left = parse_primary_expression();
 
-    while (1)
-    {
+    while (1) {
         int precedence = binary_operator_precedence(current().kind);
         if (precedence == 0 || precedence <= parent_precedence)
             break;
@@ -84,16 +83,15 @@ Tree Parser::parse()
 
 int Parser::binary_operator_precedence(Kind kind)
 {
-    switch (kind)
-    {
-        case Kind::star_token:
-        case Kind::forward_slash_token:
-            return 2;
-        case Kind::plus_token:
-        case Kind::minus_token:
-            return 1;
-        default:
-            return 0;
+    switch (kind) {
+    case Kind::star_token:
+    case Kind::forward_slash_token:
+        return 2;
+    case Kind::plus_token:
+    case Kind::minus_token:
+        return 1;
+    default:
+        return 0;
     }
 }
 
