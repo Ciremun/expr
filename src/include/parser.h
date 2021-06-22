@@ -20,11 +20,10 @@ struct Parser {
     Token current();
     Token next_token();
     Token match_token(Kind kind);
-    Expression* parse_expr();
-    Expression* parse_primary();
-    Expression* parse_term();
-    Expression* parse_factor();
+    Expression* parse_expression(int parent_precedence = 0);
+    Expression* parse_primary_expression();
     Tree parse();
+    int binary_operator_precedence(Kind kind);
 };
 
 #endif // PARSER_H

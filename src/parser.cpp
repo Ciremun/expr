@@ -45,16 +45,28 @@ Token Parser::match_token(Kind kind)
     return Token(kind, cur.position, "\0", nullptr);
 }
 
-Expression* Parser::parse_expr()
+Expression* Parser::parse_expression(int parent_precedence)
 {
-    return parse_term();
+    Expression* left = parse_primary_expression();
+
+    while (1)
+    {
+        int precedence = binary_operator_precedence(current().kind);
+        if (precedence == 0 || precedence <= parent_precedence)
+            break;
+        Token operator_token = next_token();
+        Expression* right = parse_expression(precedence);
+        left = new BinaryExpr(left, operator_token, right);
+    }
+
+    return left;
 }
 
-Expression* Parser::parse_primary()
+Expression* Parser::parse_primary_expression()
 {
     if (current().kind == Kind::open_paren_token) {
         Token left = next_token();
-        Expression* expr = parse_expr();
+        Expression* expr = parse_expression();
         Token right = match_token(Kind::close_paren_token);
         return new ParenExpr(left, expr, right);
     }
@@ -65,37 +77,23 @@ Expression* Parser::parse_primary()
 
 Tree Parser::parse()
 {
-    Expression* expression = parse_expr();
+    Expression* expression = parse_expression();
     Token eof = match_token(Kind::eof_token);
     return Tree(errors, expression, eof);
 }
 
-Expression* Parser::parse_term()
+int Parser::binary_operator_precedence(Kind kind)
 {
-    Expression* left = parse_factor();
-    Token cur = current();
-
-    while (cur.kind == Kind::plus_token || cur.kind == Kind::minus_token) {
-        Token op = next_token();
-        Expression* right = parse_factor();
-        left = new BinaryExpr(left, op, right);
-        cur = current();
+    switch (kind)
+    {
+        case Kind::star_token:
+        case Kind::forward_slash_token:
+            return 2;
+        case Kind::plus_token:
+        case Kind::minus_token:
+            return 1;
+        default:
+            return 0;
     }
-
-    return left;
 }
 
-Expression* Parser::parse_factor()
-{
-    Expression* left = parse_primary();
-    Token cur = current();
-
-    while (cur.kind == Kind::star_token || cur.kind == Kind::forward_slash_token) {
-        Token op = next_token();
-        Expression* right = parse_primary();
-        left = new BinaryExpr(left, op, right);
-        cur = current();
-    }
-
-    return left;
-}
