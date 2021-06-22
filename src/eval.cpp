@@ -1,6 +1,9 @@
 #include "eval.h"
 
-Eval::Eval(Expression* root) : root(root) {}
+Eval::Eval(Expression* root)
+    : root(root)
+{
+}
 
 size Eval::evaluate()
 {
