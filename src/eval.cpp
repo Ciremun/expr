@@ -29,5 +29,13 @@ size Eval::evaluate_expr(Expression* expr)
     if (ParenExpr* paren_expr = dynamic_cast<ParenExpr*>(expr)) {
         return evaluate_expr(paren_expr->expr);
     }
+    if (UnaryExpr* unary_expr = dynamic_cast<UnaryExpr*>(expr)) {
+        size op = evaluate_expr(unary_expr->operand);
+
+        if (unary_expr->op.kind == Kind::plus_token)  return op;
+        if (unary_expr->op.kind == Kind::minus_token) return -op;
+
+        runtime_error("unexpected unary operator: %s\n", kinds[unary_expr->kind]);
+    }
     runtime_error("unexpected expr: %s\n", kinds[expr->kind]);
 }

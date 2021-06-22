@@ -13,6 +13,7 @@
 struct Parser {
     struct Facts {
         static int binary_operator_precedence(Kind kind);
+        static int unary_operator_precedence(Kind kind);
     };
 
     std::vector<Token> tokens;

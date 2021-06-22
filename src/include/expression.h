@@ -13,8 +13,8 @@ struct Expression : Node {
 };
 
 struct LiteralExpr : Expression {
-    Kind kind;
     Token literal;
+    Kind kind = Kind::literal_expr;
 
     LiteralExpr(Token literal);
 };
@@ -23,16 +23,24 @@ struct BinaryExpr : Expression {
     Expression* left;
     Token op;
     Expression* right;
-    Kind kind;
+    Kind kind = Kind::binary_expr;
 
     BinaryExpr(Expression* left, Token op, Expression* right);
+};
+
+struct UnaryExpr : Expression {
+    Token op;
+    Expression* operand;
+    Kind kind = Kind::unary_expr;
+
+    UnaryExpr(Token op, Expression* operand);
 };
 
 struct ParenExpr : Expression {
     Token open_paren;
     Expression* expr;
     Token close_paren;
-    Kind kind;
+    Kind kind = Kind::paren_expr;
 
     ParenExpr(Token open_paren, Expression* expr, Token close_paren);
 };

@@ -47,7 +47,15 @@ Token Parser::match_token(Kind kind)
 
 Expression* Parser::parse_expression(int parent_precedence)
 {
-    Expression* left = parse_primary_expression();
+    Expression* left;
+    int unary_operator_precedence = Facts::unary_operator_precedence(current().kind);
+    if (unary_operator_precedence != 0 && unary_operator_precedence >= parent_precedence) {
+        Token op = next_token();
+        Expression* operand = parse_expression(unary_operator_precedence);
+        left = new UnaryExpr(op, operand);
+    } else {
+        left = parse_primary_expression();
+    }
 
     while (1) {
         int precedence = Facts::binary_operator_precedence(current().kind);
@@ -95,3 +103,13 @@ int Parser::Facts::binary_operator_precedence(Kind kind)
     }
 }
 
+int Parser::Facts::unary_operator_precedence(Kind kind)
+{
+    switch (kind) {
+    case Kind::plus_token:
+    case Kind::minus_token:
+        return 3;
+    default:
+        return 0;
+    }
+}
