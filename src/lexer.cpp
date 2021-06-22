@@ -28,9 +28,9 @@ Token Lexer::lex()
 
     if (is_digit(current)) {
         size start = position;
-        next_char();
-        while (is_digit(current_char()))
+        do {
             next_char();
+        } while (is_digit(current_char()));
         size length = position - start;
         std::string text = this->text.substr(start, length);
         size value = 0;
