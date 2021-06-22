@@ -11,6 +11,10 @@
 #include "typedef.h"
 
 struct Parser {
+    struct Facts {
+        static int binary_operator_precedence(Kind kind);
+    };
+
     std::vector<Token> tokens;
     std::vector<std::string> errors;
     size position = 0;
@@ -23,7 +27,6 @@ struct Parser {
     Expression* parse_expression(int parent_precedence = 0);
     Expression* parse_primary_expression();
     Tree parse();
-    int binary_operator_precedence(Kind kind);
 };
 
 #endif // PARSER_H
