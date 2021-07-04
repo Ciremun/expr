@@ -3,13 +3,14 @@
 
 #include "expression.h"
 #include "typedef.h"
+#include "binder.h"
 
 struct Eval {
-    Expression* root;
+    BoundExpr* root;
 
-    Eval(Expression* root);
+    Eval(BoundExpr* root);
     size evaluate();
-    size evaluate_expr(Expression* expr);
+    size evaluate_expr(BoundExpr* expr);
 };
 
 #endif // EVAL_H

@@ -5,3 +5,4 @@
 #include "eval.cpp"
 #include "expression.cpp"
 #include "util.cpp"
+#include "binder.cpp"

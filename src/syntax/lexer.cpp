@@ -67,6 +67,7 @@ Token Lexer::lex()
         return Token(Kind::close_paren_token,   temp, ")", nullptr);
     }
 
+    printf("input char caused error token: <%c>\n", current);
     errors.push_back(format("[ERROR] bad input char: '%c'", current));
     return Token(Kind::error_token, temp, text.substr(temp, 1), nullptr);
 }

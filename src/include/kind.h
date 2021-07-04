@@ -36,4 +36,24 @@ constexpr const char* kinds[] = {
     "paren_expr"
 };
 
+enum class BoundNodeKind {
+    literal_expr,
+    unary_expr,
+    binary_expr
+};
+
+enum class BoundUnaryOperatorKind {
+    Identity,
+    Negation,
+    Error
+};
+
+enum class BoundBinaryOperatorKind {
+    Addition,
+    Subtraction,
+    Multiplication,
+    Division,
+    Error
+};
+
 #endif // KIND_H
