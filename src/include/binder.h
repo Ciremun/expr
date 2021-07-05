@@ -14,13 +14,13 @@ struct BoundNode {
 struct BoundExpr : BoundNode {
     size_t type;
 
+    BoundExpr(size_t type);
     virtual ~BoundExpr() = default;
 };
 
 struct BoundLiteralExpr : BoundExpr {
     Value value;
     BoundNodeKind kind = BoundNodeKind::literal_expr;
-    size_t type;
 
     BoundLiteralExpr(Value value, size_t type);
 };
@@ -29,7 +29,6 @@ struct BoundUnaryExpr : BoundExpr {
     BoundUnaryOperatorKind op_kind;
     BoundExpr *operand;
     BoundNodeKind kind = BoundNodeKind::unary_expr;
-    size_t type;
 
     BoundUnaryExpr(BoundUnaryOperatorKind op_kind, BoundExpr *operand);
 };
@@ -39,7 +38,6 @@ struct BoundBinaryExpr : BoundExpr {
     BoundBinaryOperatorKind op_kind;
     BoundExpr *right;
     BoundNodeKind kind = BoundNodeKind::binary_expr;
-    size_t type;
 
     BoundBinaryExpr(BoundExpr *left, BoundBinaryOperatorKind op_kind, BoundExpr *right);
 };

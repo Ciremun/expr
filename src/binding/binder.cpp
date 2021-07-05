@@ -2,24 +2,28 @@
 #include "kind.h"
 #include "util.h"
 
+BoundExpr::BoundExpr(size_t type)
+    : type(type)
+{
+}
+
 BoundUnaryExpr::BoundUnaryExpr(BoundUnaryOperatorKind op_kind, BoundExpr* operand)
-    : op_kind(op_kind), operand(operand), type(operand->type)
+    : BoundExpr(operand->type), op_kind(op_kind), operand(operand)
 {
 }
 
 BoundLiteralExpr::BoundLiteralExpr(Value value, size_t type)
-    : value(value), type(type)
+    : BoundExpr(type), value(value)
 {
 }
 
 BoundBinaryExpr::BoundBinaryExpr(BoundExpr* left, BoundBinaryOperatorKind op_kind, BoundExpr* right)
-    : left(left), op_kind(op_kind), right(right), type(left->type)
+    : BoundExpr(left->type), left(left), op_kind(op_kind), right(right)
 {
 }
 
 BoundExpr* Binder::bind_literal_expr(LiteralExpr* syntax)
 {
-    printf("bind_literal_expr index %lld\n", syntax->value.index());
     return new BoundLiteralExpr(syntax->value, syntax->value.index());
 }
 
@@ -28,7 +32,7 @@ BoundExpr* Binder::bind_unary_expr(UnaryExpr* syntax)
     BoundExpr* bound_operand = bind_expr(syntax->operand);
     BoundUnaryOperatorKind bound_operator_kind = bind_unary_operator_kind(syntax->op.kind, bound_operand->type);
     if (bound_operator_kind == BoundUnaryOperatorKind::Error) {
-        errors.push_back(format("Unary operator <%s> is not defined for type <%s>", syntax->op.text.c_str(), "number"));
+        errors.push_back(format("Unary operator <%s> is not defined for type <%s>", syntax->op.text.c_str(), variant_types[bound_operand->type]));
         return bound_operand;
     }
     return new BoundUnaryExpr(bound_operator_kind, bound_operand);
@@ -38,10 +42,9 @@ BoundExpr* Binder::bind_binary_expr(BinaryExpr* syntax)
 {
     BoundExpr* bound_left = bind_expr(syntax->left);
     BoundExpr* bound_right = bind_expr(syntax->right);
-    printf("bind_binary_expr index %lld %lld\n", bound_left->type, bound_right->type);
     BoundBinaryOperatorKind bound_operator_kind = bind_binary_operator_kind(syntax->op.kind, bound_left->type, bound_right->type);
     if (bound_operator_kind == BoundBinaryOperatorKind::Error) {
-        errors.push_back(format("Binary operator <%s> is not defined for types <%s> and <%s>", syntax->op.text.c_str(), "number", "number"));
+        errors.push_back(format("Binary operator <%s> is not defined for types <%s> and <%s>", syntax->op.text.c_str(), variant_types[bound_left->type], variant_types[bound_right->type]));
         return bound_left;
     }
     return new BoundBinaryExpr(bound_left, bound_operator_kind, bound_right);
@@ -57,7 +60,6 @@ BoundExpr* Binder::bind_expr(Expression* syntax)
 
 BoundUnaryOperatorKind Binder::bind_unary_operator_kind(Kind kind, size_t op_type)
 {
-    printf("uwu %lld\n", op_type);
     if (op_type != variant_type::size_vt) {
         return BoundUnaryOperatorKind::Error;
     }
@@ -73,7 +75,6 @@ BoundUnaryOperatorKind Binder::bind_unary_operator_kind(Kind kind, size_t op_typ
 
 BoundBinaryOperatorKind Binder::bind_binary_operator_kind(Kind kind, size_t left_type, size_t right_type)
 {
-    printf("owo %lld %lld\n", left_type, right_type);
     if (left_type != variant_type::size_vt || right_type != variant_type::size_vt) {
         return BoundBinaryOperatorKind::Error;
     }
