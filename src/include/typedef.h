@@ -19,4 +19,6 @@ constexpr const char* variant_types[] = {
     "BoundNodeKind"
 };
 
+static_assert(sizeof(variant_types) / sizeof(variant_types[0]) == std::variant_size_v<Value>, "update variant_types[]");
+
 #endif // TYPEDEF_H

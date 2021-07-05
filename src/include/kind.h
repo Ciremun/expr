@@ -20,7 +20,9 @@ enum Kind: int {
     paren_expr,
 
     true_keyword,
-    false_keyword
+    false_keyword,
+
+    count
 };
 
 constexpr const char* kinds[] = {
@@ -44,6 +46,8 @@ constexpr const char* kinds[] = {
     "true_keyword",
     "false_keyword"
 };
+
+static_assert(sizeof(kinds) / sizeof(kinds[0]) == Kind::count, "update kinds[]");
 
 enum class BoundNodeKind {
     literal_expr,
