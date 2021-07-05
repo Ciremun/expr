@@ -19,8 +19,7 @@ BoundBinaryExpr::BoundBinaryExpr(BoundExpr* left, BoundBinaryOperatorKind op_kin
 
 BoundExpr* Binder::bind_literal_expr(LiteralExpr* syntax)
 {
-    size value = std::get<size>(syntax->literal.value);
-    return new BoundLiteralExpr(value);
+    return new BoundLiteralExpr(syntax->value);
 }
 
 BoundExpr* Binder::bind_unary_expr(UnaryExpr* syntax)
@@ -51,12 +50,12 @@ BoundExpr* Binder::bind_expr(Expression* syntax)
     if (LiteralExpr *literal_expr = dynamic_cast<LiteralExpr*>(syntax)) return bind_literal_expr(literal_expr);
     if (UnaryExpr   *unary_expr   = dynamic_cast<UnaryExpr*>(syntax))   return bind_unary_expr(unary_expr);
     if (BinaryExpr  *binary_expr  = dynamic_cast<BinaryExpr*>(syntax))  return bind_binary_expr(binary_expr);
-    runtime_error("Unexpected syntax <%s>", kinds[syntax->kind]);
+    runtime_error("Unexpected syntax <%s>\n", kinds[syntax->kind]);
 }
 
 BoundUnaryOperatorKind Binder::bind_unary_operator_kind(Kind kind, Value op_type)
 {
-    if (!std::get_if<size>(&op_type)) {
+    if (!std::holds_alternative<size>(op_type)) {
         return BoundUnaryOperatorKind::Error;
     }
     switch (kind) {
@@ -65,13 +64,13 @@ BoundUnaryOperatorKind Binder::bind_unary_operator_kind(Kind kind, Value op_type
     case Kind::minus_token:
         return BoundUnaryOperatorKind::Negation;
     default:
-        runtime_error("Unexpected unary operator <%s>", kinds[kind]);
+        runtime_error("Unexpected unary operator <%s>\n", kinds[kind]);
     }
 }
 
 BoundBinaryOperatorKind Binder::bind_binary_operator_kind(Kind kind, Value left_type, Value right_type)
 {
-    if (!std::get_if<size>(&left_type) || !std::get_if<size>(&right_type)) {
+    if (!std::holds_alternative<size>(left_type) || !std::holds_alternative<size>(right_type)) {
         return BoundBinaryOperatorKind::Error;
     }
     switch (kind) {
@@ -84,6 +83,6 @@ BoundBinaryOperatorKind Binder::bind_binary_operator_kind(Kind kind, Value left_
     case Kind::forward_slash_token:
         return BoundBinaryOperatorKind::Division;
     default:
-        runtime_error("Unexpected binary operator <%s>", kinds[kind]);
+        runtime_error("Unexpected binary operator <%s>\n", kinds[kind]);
     }
 }

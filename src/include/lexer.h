@@ -9,7 +9,7 @@
 
 struct Lexer {
     std::string text;
-    size position = 0;
+    usize position = 0;
     std::vector<std::string> errors;
 
     Lexer(std::string text);

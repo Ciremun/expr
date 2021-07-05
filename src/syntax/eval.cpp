@@ -5,19 +5,22 @@ Eval::Eval(BoundExpr* root)
 {
 }
 
-size Eval::evaluate()
+Value Eval::evaluate()
 {
     return evaluate_expr(root);
 }
 
-size Eval::evaluate_expr(BoundExpr* expr)
+Value Eval::evaluate_expr(BoundExpr* expr)
 {
     if (BoundLiteralExpr* literal_expr = dynamic_cast<BoundLiteralExpr*>(expr)) {
-        return std::get<size>(literal_expr->value);
+        return literal_expr->value;
     }
     if (BoundBinaryExpr* binary_expr = dynamic_cast<BoundBinaryExpr*>(expr)) {
-        size left = evaluate_expr(binary_expr->left);
-        size right = evaluate_expr(binary_expr->right);
+        Value left_val = evaluate_expr(binary_expr->left);
+        Value right_val = evaluate_expr(binary_expr->right);
+
+        size left = std::get<size>(left_val);
+        size right = std::get<size>(right_val);
 
         if (binary_expr->op_kind == BoundBinaryOperatorKind::Addition      )  return left + right;
         if (binary_expr->op_kind == BoundBinaryOperatorKind::Subtraction   )  return left - right;
@@ -27,7 +30,8 @@ size Eval::evaluate_expr(BoundExpr* expr)
         runtime_error("unexpected binary operator: %s\n", binary_expr->kind);
     }
     if (BoundUnaryExpr* unary_expr = dynamic_cast<BoundUnaryExpr*>(expr)) {
-        size op = evaluate_expr(unary_expr->operand);
+        Value value = evaluate_expr(unary_expr->operand);
+        size op = std::get<size>(value);
 
         if (unary_expr->op_kind == BoundUnaryOperatorKind::Identity)  return  op;
         if (unary_expr->op_kind == BoundUnaryOperatorKind::Negation)  return -op;

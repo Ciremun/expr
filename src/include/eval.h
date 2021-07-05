@@ -9,8 +9,8 @@ struct Eval {
     BoundExpr* root;
 
     Eval(BoundExpr* root);
-    size evaluate();
-    size evaluate_expr(BoundExpr* expr);
+    Value evaluate();
+    Value evaluate_expr(BoundExpr* expr);
 };
 
 #endif // EVAL_H

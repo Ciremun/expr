@@ -5,12 +5,14 @@
 #include <string>
 #include <cstdio>
 #include <stdexcept>
+#include <type_traits>
 
 #include "typedef.h"
 
+bool is_letter(char c);
 bool is_digit(char c);
 size char_to_digit(char c);
-bool string_to_size(const std::string &str, size *out);
+bool string_to_size(const std::string &str, usize *out);
 
 template <typename... Args>
 [[noreturn]] void runtime_error(const char *fmt, Args... args)
@@ -31,4 +33,8 @@ std::string format(const std::string &format, Args... args)
     std::snprintf(buf.get(), sz, format.c_str(), args...);
     return std::string(buf.get(), buf.get() + sz - 1);
 }
+
+template <typename T>
+using base_type = typename std::remove_cv<typename std::remove_reference<T>::type>::type;
+
 #endif // UTIL_H

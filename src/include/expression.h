@@ -15,8 +15,10 @@ struct Expression : Node {
 struct LiteralExpr : Expression {
     Token literal;
     Kind kind = Kind::literal_expr;
+    Value value;
 
     LiteralExpr(Token literal);
+    LiteralExpr(Token literal, Value value);
 };
 
 struct BinaryExpr : Expression {

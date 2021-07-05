@@ -1,7 +1,12 @@
 #include "expression.h"
 
 LiteralExpr::LiteralExpr(Token literal)
-    : literal(literal)
+    : literal(literal), value(literal.value)
+{
+}
+
+LiteralExpr::LiteralExpr(Token literal, Value value)
+    : literal(literal), value(value)
 {
 }
 

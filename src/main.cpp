@@ -4,6 +4,7 @@
 
 #include "tree.h"
 #include "eval.h"
+#include "util.h"
 
 int main()
 {
@@ -29,8 +30,14 @@ int main()
             }
         } else {
             Eval eval(bound_expr);
-            size result = eval.evaluate();
-            printf("%lld\n", result);
+            Value result = eval.evaluate();
+            std::visit([](auto &&val) {
+                if constexpr (std::is_same_v<bool, base_type<decltype(val)>>) {
+                    std::cout << (val ? "true" : "false") << std::endl;
+                } else if constexpr (std::is_same_v<size, base_type<decltype(val)>>) {
+                    std::cout << val << std::endl;
+                }
+            }, result);
         }
     }
     return 0;

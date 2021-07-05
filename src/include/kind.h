@@ -12,11 +12,15 @@ enum Kind: int {
     minus_token,
     star_token,
     forward_slash_token,
+    identifier_token,
 
     literal_expr,
     unary_expr,
     binary_expr,
-    paren_expr
+    paren_expr,
+
+    true_keyword,
+    false_keyword
 };
 
 constexpr const char* kinds[] = {
@@ -30,10 +34,15 @@ constexpr const char* kinds[] = {
     "minus_token",
     "star_token",
     "forward_slash_token",
+    "identifier_token",
+
     "literal_expr",
     "unary_expr",
     "binary_expr",
-    "paren_expr"
+    "paren_expr",
+
+    "true_keyword",
+    "false_keyword"
 };
 
 enum class BoundNodeKind {

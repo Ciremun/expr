@@ -5,7 +5,8 @@
 
 #include "kind.h"
 
-typedef long long unsigned int size;
-using Value = std::variant<size, int, float, bool, const char *, std::string, BoundNodeKind>;
+typedef long long int size;
+typedef unsigned long long int usize;
+using Value = std::variant<size, usize, float, bool, const char *, std::string, BoundNodeKind>;
 
 #endif // TYPEDEF_H

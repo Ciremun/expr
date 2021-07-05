@@ -17,7 +17,7 @@ Parser::Parser(std::string text)
 
 Token Parser::peek(size offset)
 {
-    size index = position + offset;
+    usize index = position + offset;
     if (index >= tokens.size())
         return tokens[tokens.size() - 1];
     return tokens[index];
@@ -45,13 +45,13 @@ Token Parser::match_token(Kind kind)
     return Token(kind, cur.position, "\0", nullptr);
 }
 
-Expression* Parser::parse_expression(int parent_precedence)
+Expression *Parser::parse_expression(int parent_precedence)
 {
-    Expression* left;
+    Expression *left;
     int unary_operator_precedence = Facts::unary_operator_precedence(current().kind);
     if (unary_operator_precedence != 0 && unary_operator_precedence >= parent_precedence) {
         Token op = next_token();
-        Expression* operand = parse_expression(unary_operator_precedence);
+        Expression *operand = parse_expression(unary_operator_precedence);
         left = new UnaryExpr(op, operand);
     } else {
         left = parse_primary_expression();
@@ -62,34 +62,44 @@ Expression* Parser::parse_expression(int parent_precedence)
         if (precedence == 0 || precedence <= parent_precedence)
             break;
         Token operator_token = next_token();
-        Expression* right = parse_expression(precedence);
+        Expression *right = parse_expression(precedence);
         left = new BinaryExpr(left, operator_token, right);
     }
 
     return left;
 }
 
-Expression* Parser::parse_primary_expression()
+Expression *Parser::parse_primary_expression()
 {
-    if (current().kind == Kind::open_paren_token) {
+    switch (current().kind) {
+    case Kind::open_paren_token: {
         Token left = next_token();
-        Expression* expr = parse_expression();
+        Expression *expr = parse_expression();
         Token right = match_token(Kind::close_paren_token);
         return new ParenExpr(left, expr, right);
     }
-
-    Token number = match_token(Kind::number_token);
-    return new LiteralExpr(number);
+    case Kind::true_keyword:
+    case Kind::false_keyword: {
+        Token current_token = current();
+        Token keyword_token = next_token();
+        bool value = current_token.kind == Kind::true_keyword;
+        return new LiteralExpr(keyword_token, value);
+    }
+    default: {
+        Token number = match_token(Kind::number_token);
+        return new LiteralExpr(number);
+    }
+    }
 }
 
 Tree Parser::parse()
 {
-    Expression* expression = parse_expression();
+    Expression *expression = parse_expression();
     Token eof = match_token(Kind::eof_token);
     return Tree(errors, expression, eof);
 }
 
-int Parser::Facts::binary_operator_precedence(Kind kind)
+int Facts::binary_operator_precedence(Kind kind)
 {
     switch (kind) {
     case Kind::star_token:
@@ -103,7 +113,7 @@ int Parser::Facts::binary_operator_precedence(Kind kind)
     }
 }
 
-int Parser::Facts::unary_operator_precedence(Kind kind)
+int Facts::unary_operator_precedence(Kind kind)
 {
     switch (kind) {
     case Kind::plus_token:
@@ -112,4 +122,13 @@ int Parser::Facts::unary_operator_precedence(Kind kind)
     default:
         return 0;
     }
+}
+
+Kind Facts::keyword_kind(std::string &text)
+{
+    if (text == "true")
+        return Kind::true_keyword;
+    if (text == "false")
+        return Kind::false_keyword;
+    return Kind::identifier_token;
 }

@@ -10,12 +10,13 @@
 #include "kind.h"
 #include "typedef.h"
 
-struct Parser {
-    struct Facts {
-        static int binary_operator_precedence(Kind kind);
-        static int unary_operator_precedence(Kind kind);
-    };
+struct Facts {
+    static int binary_operator_precedence(Kind kind);
+    static int unary_operator_precedence(Kind kind);
+    static Kind keyword_kind(std::string &text);
+};
 
+struct Parser {
     std::vector<Token> tokens;
     std::vector<std::string> errors;
     size position = 0;
