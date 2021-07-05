@@ -60,7 +60,7 @@ BoundExpr* Binder::bind_expr(Expression* syntax)
 
 BoundUnaryOperatorKind Binder::bind_unary_operator_kind(Kind kind, size_t op_type)
 {
-    if (op_type != variant_type::size_vt) {
+    if (op_type != variant_index<Value, size>()) {
         return BoundUnaryOperatorKind::Error;
     }
     switch (kind) {
@@ -75,7 +75,7 @@ BoundUnaryOperatorKind Binder::bind_unary_operator_kind(Kind kind, size_t op_typ
 
 BoundBinaryOperatorKind Binder::bind_binary_operator_kind(Kind kind, size_t left_type, size_t right_type)
 {
-    if (left_type != variant_type::size_vt || right_type != variant_type::size_vt) {
+    if (left_type != variant_index<Value, size>() || right_type != variant_index<Value, size>()) {
         return BoundBinaryOperatorKind::Error;
     }
     switch (kind) {
