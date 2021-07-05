@@ -12,7 +12,7 @@ struct BoundNode {
 };
 
 struct BoundExpr : BoundNode {
-    Value type;
+    size_t type;
 
     virtual ~BoundExpr() = default;
 };
@@ -20,16 +20,16 @@ struct BoundExpr : BoundNode {
 struct BoundLiteralExpr : BoundExpr {
     Value value;
     BoundNodeKind kind = BoundNodeKind::literal_expr;
-    Value type = BoundNodeKind::literal_expr;
+    size_t type;
 
-    BoundLiteralExpr(Value value);
+    BoundLiteralExpr(Value value, size_t type);
 };
 
 struct BoundUnaryExpr : BoundExpr {
     BoundUnaryOperatorKind op_kind;
     BoundExpr *operand;
     BoundNodeKind kind = BoundNodeKind::unary_expr;
-    Value type;
+    size_t type;
 
     BoundUnaryExpr(BoundUnaryOperatorKind op_kind, BoundExpr *operand);
 };
@@ -39,7 +39,7 @@ struct BoundBinaryExpr : BoundExpr {
     BoundBinaryOperatorKind op_kind;
     BoundExpr *right;
     BoundNodeKind kind = BoundNodeKind::binary_expr;
-    Value type;
+    size_t type;
 
     BoundBinaryExpr(BoundExpr *left, BoundBinaryOperatorKind op_kind, BoundExpr *right);
 };
@@ -51,8 +51,8 @@ struct Binder {
     BoundExpr* bind_unary_expr(UnaryExpr *syntax);
     BoundExpr* bind_binary_expr(BinaryExpr *syntax);
     BoundExpr* bind_expr(Expression *syntax);
-    BoundUnaryOperatorKind bind_unary_operator_kind(Kind kind, Value op_type);
-    BoundBinaryOperatorKind bind_binary_operator_kind(Kind kind, Value left_type, Value right_type);
+    BoundUnaryOperatorKind bind_unary_operator_kind(Kind kind, size_t op_type);
+    BoundBinaryOperatorKind bind_binary_operator_kind(Kind kind, size_t left_type, size_t right_type);
 };
 
 #endif // BINDER_H

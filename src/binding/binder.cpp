@@ -7,8 +7,8 @@ BoundUnaryExpr::BoundUnaryExpr(BoundUnaryOperatorKind op_kind, BoundExpr* operan
 {
 }
 
-BoundLiteralExpr::BoundLiteralExpr(Value value)
-    : value(value)
+BoundLiteralExpr::BoundLiteralExpr(Value value, size_t type)
+    : value(value), type(type)
 {
 }
 
@@ -19,7 +19,8 @@ BoundBinaryExpr::BoundBinaryExpr(BoundExpr* left, BoundBinaryOperatorKind op_kin
 
 BoundExpr* Binder::bind_literal_expr(LiteralExpr* syntax)
 {
-    return new BoundLiteralExpr(syntax->value);
+    printf("bind_literal_expr index %lld\n", syntax->value.index());
+    return new BoundLiteralExpr(syntax->value, syntax->value.index());
 }
 
 BoundExpr* Binder::bind_unary_expr(UnaryExpr* syntax)
@@ -37,6 +38,7 @@ BoundExpr* Binder::bind_binary_expr(BinaryExpr* syntax)
 {
     BoundExpr* bound_left = bind_expr(syntax->left);
     BoundExpr* bound_right = bind_expr(syntax->right);
+    printf("bind_binary_expr index %lld %lld\n", bound_left->type, bound_right->type);
     BoundBinaryOperatorKind bound_operator_kind = bind_binary_operator_kind(syntax->op.kind, bound_left->type, bound_right->type);
     if (bound_operator_kind == BoundBinaryOperatorKind::Error) {
         errors.push_back(format("Binary operator <%s> is not defined for types <%s> and <%s>", syntax->op.text.c_str(), "number", "number"));
@@ -53,9 +55,10 @@ BoundExpr* Binder::bind_expr(Expression* syntax)
     runtime_error("Unexpected syntax <%s>\n", kinds[syntax->kind]);
 }
 
-BoundUnaryOperatorKind Binder::bind_unary_operator_kind(Kind kind, Value op_type)
+BoundUnaryOperatorKind Binder::bind_unary_operator_kind(Kind kind, size_t op_type)
 {
-    if (!std::holds_alternative<size>(op_type)) {
+    printf("uwu %lld\n", op_type);
+    if (op_type != variant_type::size_vt) {
         return BoundUnaryOperatorKind::Error;
     }
     switch (kind) {
@@ -68,9 +71,10 @@ BoundUnaryOperatorKind Binder::bind_unary_operator_kind(Kind kind, Value op_type
     }
 }
 
-BoundBinaryOperatorKind Binder::bind_binary_operator_kind(Kind kind, Value left_type, Value right_type)
+BoundBinaryOperatorKind Binder::bind_binary_operator_kind(Kind kind, size_t left_type, size_t right_type)
 {
-    if (!std::holds_alternative<size>(left_type) || !std::holds_alternative<size>(right_type)) {
+    printf("owo %lld %lld\n", left_type, right_type);
+    if (left_type != variant_type::size_vt || right_type != variant_type::size_vt) {
         return BoundBinaryOperatorKind::Error;
     }
     switch (kind) {
