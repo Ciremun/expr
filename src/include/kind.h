@@ -13,6 +13,9 @@ enum Kind : int {
     star_token,
     forward_slash_token,
     identifier_token,
+    bang_token,
+    double_ampersand_token,
+    double_pipe_token,
 
     literal_expr,
     unary_expr,
@@ -37,12 +40,13 @@ constexpr const char *kinds[] = {
     "star_token",
     "forward_slash_token",
     "identifier_token",
-
+    "bang_token",
+    "double_ampersand_token",
+    "double_pipe_token",
     "literal_expr",
     "unary_expr",
     "binary_expr",
     "paren_expr",
-
     "true_keyword",
     "false_keyword"
 };
@@ -58,6 +62,7 @@ enum class BoundNodeKind {
 enum class BoundUnaryOperatorKind {
     Identity,
     Negation,
+    LogicalNegation,
     Error
 };
 
@@ -66,6 +71,8 @@ enum class BoundBinaryOperatorKind {
     Subtraction,
     Multiplication,
     Division,
+    LogicalAnd,
+    LogicalOr,
     Error
 };
 

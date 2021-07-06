@@ -8,11 +8,22 @@ Lexer::Lexer(std::string text)
 {
 }
 
+char Lexer::peek(int offset)
+{
+    usize index = position + offset;
+    if (index >= text.length())
+        return '\0';
+    return text[index];
+}
+
 char Lexer::current_char()
 {
-    if (position >= text.length())
-        return '\0';
-    return text[position];
+    return peek(0);
+}
+
+char Lexer::lookahead()
+{
+    return peek(1);
 }
 
 void Lexer::next_char()
@@ -61,24 +72,37 @@ Token Lexer::lex()
         return Token(kind, start, text, nullptr);
     }
 
-    int temp = position;
-    position++;
-
     switch (current) {
     case '+':
-        return Token(Kind::plus_token, temp, "+", nullptr);
+        return Token(Kind::plus_token, position++, "+", nullptr);
     case '-':
-        return Token(Kind::minus_token, temp, "-", nullptr);
+        return Token(Kind::minus_token, position++, "-", nullptr);
     case '*':
-        return Token(Kind::star_token, temp, "*", nullptr);
+        return Token(Kind::star_token, position++, "*", nullptr);
     case '/':
-        return Token(Kind::forward_slash_token, temp, "/", nullptr);
+        return Token(Kind::forward_slash_token, position++, "/", nullptr);
     case '(':
-        return Token(Kind::open_paren_token, temp, "(", nullptr);
+        return Token(Kind::open_paren_token, position++, "(", nullptr);
     case ')':
-        return Token(Kind::close_paren_token, temp, ")", nullptr);
+        return Token(Kind::close_paren_token, position++, ")", nullptr);
+    case '!':
+        return Token(Kind::bang_token, position++, "!", nullptr);
+    case '&': {
+        if (lookahead() == '&')
+            return Token(Kind::double_ampersand_token, position += 2, "&&", nullptr);
+        break;
+    }
+    case '|': {
+        if (lookahead() == '|')
+            return Token(Kind::double_pipe_token, position += 2, "||", nullptr);
+        break;
+    }
     }
 
     errors.push_back(format("[ERROR] bad input char: '%c'", current));
+
+    int temp = position;
+    position++;
+
     return Token(Kind::error_token, temp, text.substr(temp, 1), nullptr);
 }

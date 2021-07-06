@@ -63,34 +63,52 @@ BoundExpr *Binder::bind_expr(Expression *syntax)
 
 BoundUnaryOperatorKind Binder::bind_unary_operator_kind(Kind kind, size_t op_type)
 {
-    if (op_type != variant_index<Value, size>()) {
-        return BoundUnaryOperatorKind::Error;
+    if (op_type == variant_index<Value, size>()) {
+        switch (kind) {
+        case Kind::plus_token:
+            return BoundUnaryOperatorKind::Identity;
+        case Kind::minus_token:
+            return BoundUnaryOperatorKind::Negation;
+        default:
+            return BoundUnaryOperatorKind::Error;
+        }
     }
-    switch (kind) {
-    case Kind::plus_token:
-        return BoundUnaryOperatorKind::Identity;
-    case Kind::minus_token:
-        return BoundUnaryOperatorKind::Negation;
-    default:
-        runtime_error("Unexpected unary operator <%s>\n", kinds[kind]);
+    if (op_type == variant_index<Value, bool>()) {
+        switch (kind) {
+        case Kind::bang_token:
+            return BoundUnaryOperatorKind::LogicalNegation;
+        default:
+            return BoundUnaryOperatorKind::Error;
+        }
     }
+    return BoundUnaryOperatorKind::Error;
 }
 
 BoundBinaryOperatorKind Binder::bind_binary_operator_kind(Kind kind, size_t left_type, size_t right_type)
 {
-    if (left_type != variant_index<Value, size>() || right_type != variant_index<Value, size>()) {
-        return BoundBinaryOperatorKind::Error;
+    if (left_type == variant_index<Value, size>() && right_type == variant_index<Value, size>()) {
+        switch (kind) {
+        case Kind::plus_token:
+            return BoundBinaryOperatorKind::Addition;
+        case Kind::minus_token:
+            return BoundBinaryOperatorKind::Subtraction;
+        case Kind::star_token:
+            return BoundBinaryOperatorKind::Multiplication;
+        case Kind::forward_slash_token:
+            return BoundBinaryOperatorKind::Division;
+        default:
+            return BoundBinaryOperatorKind::Error;
+        }
     }
-    switch (kind) {
-    case Kind::plus_token:
-        return BoundBinaryOperatorKind::Addition;
-    case Kind::minus_token:
-        return BoundBinaryOperatorKind::Subtraction;
-    case Kind::star_token:
-        return BoundBinaryOperatorKind::Multiplication;
-    case Kind::forward_slash_token:
-        return BoundBinaryOperatorKind::Division;
-    default:
-        runtime_error("Unexpected binary operator <%s>\n", kinds[kind]);
+    if (left_type == variant_index<Value, bool>() && right_type == variant_index<Value, bool>()) {
+        switch (kind) {
+        case Kind::double_ampersand_token:
+            return BoundBinaryOperatorKind::LogicalAnd;
+        case Kind::double_pipe_token:
+            return BoundBinaryOperatorKind::LogicalOr;
+        default:
+            return BoundBinaryOperatorKind::Error;
+        }
     }
+    return BoundBinaryOperatorKind::Error;
 }

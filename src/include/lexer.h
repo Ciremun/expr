@@ -13,7 +13,9 @@ struct Lexer {
     std::vector<std::string> errors;
 
     Lexer(std::string text);
+    char  peek(int offset);
     char  current_char();
+    char  lookahead();
     void  next_char();
     Token lex();
 };
