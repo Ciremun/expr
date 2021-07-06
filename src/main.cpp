@@ -1,9 +1,9 @@
 #include <iostream>
-#include <string>
 #include <iterator>
+#include <string>
 
-#include "tree.h"
 #include "eval.h"
+#include "tree.h"
 #include "util.h"
 
 int main()
@@ -15,8 +15,8 @@ int main()
         if (input.empty()) {
             continue;
         }
-        Tree tree = tree.parse(input);
-        Binder binder;
+        Tree       tree = tree.parse(input);
+        Binder     binder;
         BoundExpr *bound_expr = binder.bind_expr(tree.root);
 
         tree.errors.insert(
@@ -29,7 +29,7 @@ int main()
                 printf("%s\n", err.c_str());
             }
         } else {
-            Eval eval(bound_expr);
+            Eval  eval(bound_expr);
             Value result = eval.evaluate();
             std::visit([](auto &&val) {
                 if constexpr (std::is_same_v<bool, base_type<decltype(val)>>) {
@@ -37,7 +37,8 @@ int main()
                 } else if constexpr (std::is_same_v<size, base_type<decltype(val)>>) {
                     std::cout << val << std::endl;
                 }
-            }, result);
+            },
+            result);
         }
     }
     return 0;

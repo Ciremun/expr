@@ -3,8 +3,8 @@
 Parser::Parser(std::string text)
 {
     std::vector<Token> tokens;
-    Lexer lexer(text);
-    Token token;
+    Lexer              lexer(text);
+    Token              token;
     do {
         token = lexer.lex();
         if (token.kind != Kind::space_token && token.kind != Kind::error_token) {
@@ -48,9 +48,9 @@ Token Parser::match_token(Kind kind)
 Expression *Parser::parse_expression(int parent_precedence)
 {
     Expression *left;
-    int unary_operator_precedence = Facts::unary_operator_precedence(current().kind);
+    int         unary_operator_precedence = Facts::unary_operator_precedence(current().kind);
     if (unary_operator_precedence != 0 && unary_operator_precedence >= parent_precedence) {
-        Token op = next_token();
+        Token       op = next_token();
         Expression *operand = parse_expression(unary_operator_precedence);
         left = new UnaryExpr(op, operand);
     } else {
@@ -61,7 +61,7 @@ Expression *Parser::parse_expression(int parent_precedence)
         int precedence = Facts::binary_operator_precedence(current().kind);
         if (precedence == 0 || precedence <= parent_precedence)
             break;
-        Token operator_token = next_token();
+        Token       operator_token = next_token();
         Expression *right = parse_expression(precedence);
         left = new BinaryExpr(left, operator_token, right);
     }
@@ -73,16 +73,16 @@ Expression *Parser::parse_primary_expression()
 {
     switch (current().kind) {
     case Kind::open_paren_token: {
-        Token left = next_token();
+        Token       left = next_token();
         Expression *expr = parse_expression();
-        Token right = match_token(Kind::close_paren_token);
+        Token       right = match_token(Kind::close_paren_token);
         return new ParenExpr(left, expr, right);
     }
     case Kind::true_keyword:
     case Kind::false_keyword: {
         Token current_token = current();
         Token keyword_token = next_token();
-        bool value = current_token.kind == Kind::true_keyword;
+        bool  value = current_token.kind == Kind::true_keyword;
         return new LiteralExpr(keyword_token, value);
     }
     default: {
@@ -95,7 +95,7 @@ Expression *Parser::parse_primary_expression()
 Tree Parser::parse()
 {
     Expression *expression = parse_expression();
-    Token eof = match_token(Kind::eof_token);
+    Token       eof = match_token(Kind::eof_token);
     return Tree(errors, expression, eof);
 }
 

@@ -1,7 +1,7 @@
 #ifndef KIND_H
 #define KIND_H
 
-enum Kind: int {
+enum Kind : int {
     eof_token,
     error_token,
     number_token,
@@ -25,7 +25,7 @@ enum Kind: int {
     count
 };
 
-constexpr const char* kinds[] = {
+constexpr const char *kinds[] = {
     "eof_token",
     "error_token",
     "number_token",

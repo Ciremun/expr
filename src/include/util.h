@@ -1,10 +1,10 @@
 #ifndef UTIL_H
 #define UTIL_H
 
-#include <memory>
-#include <string>
 #include <cstdio>
+#include <memory>
 #include <stdexcept>
+#include <string>
 #include <type_traits>
 
 #include "typedef.h"
@@ -38,7 +38,7 @@ std::string format(const std::string &format, Args... args)
 }
 
 // https://stackoverflow.com/a/52303671/13169325
-template<typename VariantType, typename T, std::size_t index = 0>
+template <typename VariantType, typename T, std::size_t index = 0>
 constexpr std::size_t variant_index()
 {
     if constexpr (index == std::variant_size_v<VariantType>)

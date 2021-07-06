@@ -1,8 +1,8 @@
 #ifndef BINDER_H
 #define BINDER_H
 
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "expression.h"
 #include "typedef.h"
@@ -19,7 +19,7 @@ struct BoundExpr : BoundNode {
 };
 
 struct BoundLiteralExpr : BoundExpr {
-    Value value;
+    Value         value;
     BoundNodeKind kind = BoundNodeKind::literal_expr;
 
     BoundLiteralExpr(Value value, size_t type);
@@ -27,17 +27,17 @@ struct BoundLiteralExpr : BoundExpr {
 
 struct BoundUnaryExpr : BoundExpr {
     BoundUnaryOperatorKind op_kind;
-    BoundExpr *operand;
-    BoundNodeKind kind = BoundNodeKind::unary_expr;
+    BoundExpr *            operand;
+    BoundNodeKind          kind = BoundNodeKind::unary_expr;
 
     BoundUnaryExpr(BoundUnaryOperatorKind op_kind, BoundExpr *operand);
 };
 
 struct BoundBinaryExpr : BoundExpr {
-    BoundExpr *left;
+    BoundExpr *             left;
     BoundBinaryOperatorKind op_kind;
-    BoundExpr *right;
-    BoundNodeKind kind = BoundNodeKind::binary_expr;
+    BoundExpr *             right;
+    BoundNodeKind           kind = BoundNodeKind::binary_expr;
 
     BoundBinaryExpr(BoundExpr *left, BoundBinaryOperatorKind op_kind, BoundExpr *right);
 };
@@ -45,11 +45,11 @@ struct BoundBinaryExpr : BoundExpr {
 struct Binder {
     std::vector<std::string> errors;
 
-    BoundExpr* bind_literal_expr(LiteralExpr *syntax);
-    BoundExpr* bind_unary_expr(UnaryExpr *syntax);
-    BoundExpr* bind_binary_expr(BinaryExpr *syntax);
-    BoundExpr* bind_expr(Expression *syntax);
-    BoundUnaryOperatorKind bind_unary_operator_kind(Kind kind, size_t op_type);
+    BoundExpr *             bind_literal_expr(LiteralExpr *syntax);
+    BoundExpr *             bind_unary_expr(UnaryExpr *syntax);
+    BoundExpr *             bind_binary_expr(BinaryExpr *syntax);
+    BoundExpr *             bind_expr(Expression *syntax);
+    BoundUnaryOperatorKind  bind_unary_operator_kind(Kind kind, size_t op_type);
     BoundBinaryOperatorKind bind_binary_operator_kind(Kind kind, size_t left_type, size_t right_type);
 };
 

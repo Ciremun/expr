@@ -9,10 +9,10 @@
 
 struct Tree {
     std::vector<std::string> errors;
-    Expression* root;
-    Token eof;
+    Expression *             root;
+    Token                    eof;
 
-    Tree(const std::vector<std::string>& errors, Expression* root, Token eof);
+    Tree(const std::vector<std::string> &errors, Expression *root, Token eof);
 
     Tree parse(std::string text);
 };
