@@ -83,8 +83,6 @@ Token Lexer::lex()
         return Token(Kind::open_paren_token, position++, "(", nullptr);
     case ')':
         return Token(Kind::close_paren_token, position++, ")", nullptr);
-    case '!':
-        return Token(Kind::bang_token, position++, "!", nullptr);
     case '&': {
         if (lookahead() == '&')
             return Token(Kind::double_ampersand_token, position += 2, "&&", nullptr);
@@ -93,6 +91,17 @@ Token Lexer::lex()
     case '|': {
         if (lookahead() == '|')
             return Token(Kind::double_pipe_token, position += 2, "||", nullptr);
+        break;
+    }
+    case '=': {
+        if (lookahead() == '=')
+            return Token(Kind::double_equals_token, position += 2, "==", nullptr);
+        break;
+    }
+    case '!': {
+        if (lookahead() == '=')
+            return Token(Kind::bang_equals_token, position += 2, "!=", nullptr);
+        return Token(Kind::bang_token, position++, "!", nullptr);
         break;
     }
     }

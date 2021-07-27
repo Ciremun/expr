@@ -49,4 +49,7 @@ constexpr std::size_t variant_index()
         return variant_index<VariantType, T, index + 1>();
 }
 
+template<class... Ts> struct overload : Ts... { using Ts::operator()...; };
+template<class... Ts> overload(Ts...) -> overload<Ts...>;
+
 #endif // UTIL_H

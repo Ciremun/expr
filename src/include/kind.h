@@ -16,6 +16,8 @@ enum Kind : int {
     bang_token,
     double_ampersand_token,
     double_pipe_token,
+    double_equals_token,
+    bang_equals_token,
 
     literal_expr,
     unary_expr,
@@ -43,12 +45,14 @@ constexpr const char *kinds[] = {
     "bang_token",
     "double_ampersand_token",
     "double_pipe_token",
+    "double_equals_token",
+    "bang_equals_token",
     "literal_expr",
     "unary_expr",
     "binary_expr",
     "paren_expr",
     "true_keyword",
-    "false_keyword"
+    "false_keyword",
 };
 
 static_assert(sizeof(kinds) / sizeof(kinds[0]) == Kind::count, "update kinds[]");
@@ -72,6 +76,8 @@ enum class BoundBinaryOperatorKind {
     Division,
     LogicalAnd,
     LogicalOr,
+    Equals,
+    NotEquals
 };
 
 #endif // KIND_H

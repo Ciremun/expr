@@ -99,31 +99,34 @@ Tree Parser::parse()
     return Tree(errors, expression, eof);
 }
 
-int Facts::binary_operator_precedence(Kind kind)
-{
-    switch (kind) {
-    case Kind::star_token:
-    case Kind::forward_slash_token:
-        return 4;
-    case Kind::plus_token:
-    case Kind::minus_token:
-        return 3;
-    case Kind::double_ampersand_token:
-        return 2;
-    case Kind::double_pipe_token:
-        return 1;
-    default:
-        return 0;
-    }
-}
-
 int Facts::unary_operator_precedence(Kind kind)
 {
     switch (kind) {
     case Kind::plus_token:
     case Kind::minus_token:
     case Kind::bang_token:
+        return 6;
+    default:
+        return 0;
+    }
+}
+
+int Facts::binary_operator_precedence(Kind kind)
+{
+    switch (kind) {
+    case Kind::star_token:
+    case Kind::forward_slash_token:
         return 5;
+    case Kind::plus_token:
+    case Kind::minus_token:
+        return 4;
+    case Kind::double_equals_token:
+    case Kind::bang_equals_token:
+        return 3;
+    case Kind::double_ampersand_token:
+        return 2;
+    case Kind::double_pipe_token:
+        return 1;
     default:
         return 0;
     }
