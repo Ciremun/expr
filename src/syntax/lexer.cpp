@@ -4,9 +4,7 @@
 #include "util.h"
 
 Lexer::Lexer(std::string text)
-    : text(text), position(0)
-{
-}
+    : text(text), position(0) {}
 
 char Lexer::peek(int offset)
 {

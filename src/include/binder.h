@@ -6,6 +6,7 @@
 
 #include "expression.h"
 #include "typedef.h"
+#include "util.h"
 
 struct BoundNode {
     BoundNodeKind kind;
@@ -25,22 +26,50 @@ struct BoundLiteralExpr : BoundExpr {
     BoundLiteralExpr(Value value, size_t type);
 };
 
+struct BoundUnaryOperator {
+    Kind syntax_kind;
+    BoundUnaryOperatorKind kind;
+    size_t operand_type;
+    size_t result_type;
+    static std::vector<BoundUnaryOperator*> operators;
+
+    BoundUnaryOperator(Kind syntax_kind, BoundUnaryOperatorKind kind, size_t operand_type);
+    BoundUnaryOperator(Kind syntax_kind, BoundUnaryOperatorKind kind, size_t operand_type, size_t result_type);
+    
+    static BoundUnaryOperator* Bind(Kind syntax_kind, size_t operand_type);
+};
+
+struct BoundBinaryOperator {
+    Kind syntax_kind;
+    BoundBinaryOperatorKind kind;
+    size_t left_type;
+    size_t right_type;
+    size_t result_type;
+    static std::vector<BoundBinaryOperator*> operators;
+
+    BoundBinaryOperator(Kind syntax_kind, BoundBinaryOperatorKind kind, size_t type);
+    BoundBinaryOperator(Kind syntax_kind, BoundBinaryOperatorKind kind, size_t left_type, size_t right_type, size_t result_type);
+    
+    static BoundBinaryOperator* Bind(Kind syntax_kind, size_t left_type, size_t right_type);
+};
+
 struct BoundUnaryExpr : BoundExpr {
-    BoundUnaryOperatorKind op_kind;
+    BoundUnaryOperator     op;
     BoundExpr *            operand;
     BoundNodeKind          kind = BoundNodeKind::unary_expr;
 
-    BoundUnaryExpr(BoundUnaryOperatorKind op_kind, BoundExpr *operand);
+    BoundUnaryExpr(BoundUnaryOperator op, BoundExpr *operand);
 };
 
 struct BoundBinaryExpr : BoundExpr {
     BoundExpr *             left;
-    BoundBinaryOperatorKind op_kind;
+    BoundBinaryOperator     op;
     BoundExpr *             right;
     BoundNodeKind           kind = BoundNodeKind::binary_expr;
 
-    BoundBinaryExpr(BoundExpr *left, BoundBinaryOperatorKind op_kind, BoundExpr *right);
+    BoundBinaryExpr(BoundExpr *left, BoundBinaryOperator op, BoundExpr *right);
 };
+
 
 struct Binder {
     std::vector<std::string> errors;
@@ -49,8 +78,6 @@ struct Binder {
     BoundExpr *             bind_unary_expr(UnaryExpr *syntax);
     BoundExpr *             bind_binary_expr(BinaryExpr *syntax);
     BoundExpr *             bind_expr(Expression *syntax);
-    BoundUnaryOperatorKind  bind_unary_operator_kind(Kind kind, size_t op_type);
-    BoundBinaryOperatorKind bind_binary_operator_kind(Kind kind, size_t left_type, size_t right_type);
 };
 
 #endif // BINDER_H

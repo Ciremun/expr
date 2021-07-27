@@ -1,9 +1,7 @@
 #include "eval.h"
 
 Eval::Eval(BoundExpr *root)
-    : root(root)
-{
-}
+    : root(root) {}
 
 Value Eval::evaluate()
 {
@@ -19,7 +17,7 @@ Value Eval::evaluate_expr(BoundExpr *expr)
         Value left_val = evaluate_expr(binary_expr->left);
         Value right_val = evaluate_expr(binary_expr->right);
 
-        switch (binary_expr->op_kind) {
+        switch (binary_expr->op.kind) {
         case BoundBinaryOperatorKind::Addition:
             return std::get<size>(left_val) + std::get<size>(right_val);
         case BoundBinaryOperatorKind::Subtraction:
@@ -39,7 +37,7 @@ Value Eval::evaluate_expr(BoundExpr *expr)
     if (BoundUnaryExpr *unary_expr = dynamic_cast<BoundUnaryExpr *>(expr)) {
         Value value = evaluate_expr(unary_expr->operand);
 
-        switch (unary_expr->op_kind) {
+        switch (unary_expr->op.kind) {
         case BoundUnaryOperatorKind::Identity:
             return std::get<size>(value);
         case BoundUnaryOperatorKind::Negation:

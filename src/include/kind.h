@@ -63,7 +63,6 @@ enum class BoundUnaryOperatorKind {
     Identity,
     Negation,
     LogicalNegation,
-    Error
 };
 
 enum class BoundBinaryOperatorKind {
@@ -73,7 +72,6 @@ enum class BoundBinaryOperatorKind {
     Division,
     LogicalAnd,
     LogicalOr,
-    Error
 };
 
 #endif // KIND_H
