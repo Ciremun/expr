@@ -20,19 +20,18 @@ BoundUnaryOperator::BoundUnaryOperator(Kind syntax_kind, BoundUnaryOperatorKind 
 BoundUnaryOperator::BoundUnaryOperator(Kind syntax_kind, BoundUnaryOperatorKind kind, size_t operand_type, size_t result_type)
     : syntax_kind(syntax_kind), kind(kind), operand_type(operand_type), result_type(result_type) {}
 
-    std::vector<BoundUnaryOperator*> BoundUnaryOperator::operators = []{
-        std::vector<BoundUnaryOperator*> v = {
+std::vector<BoundUnaryOperator*> BoundUnaryOperator::operators = [] {
+    std::vector<BoundUnaryOperator*> v = {
         new BoundUnaryOperator(Kind::bang_token, BoundUnaryOperatorKind::LogicalNegation, variant_index<Value, bool>()),
         new BoundUnaryOperator(Kind::plus_token, BoundUnaryOperatorKind::Identity, variant_index<Value, size>()),
         new BoundUnaryOperator(Kind::minus_token, BoundUnaryOperatorKind::Negation, variant_index<Value, size>())
     };
-        return v;
-    }();
+    return v;
+}();
 
 BoundUnaryOperator* BoundUnaryOperator::Bind(Kind syntax_kind, size_t operand_type)
 {
-    for (const auto &op : BoundUnaryOperator::operators)
-    {
+    for (const auto &op : BoundUnaryOperator::operators) {
         if (op->syntax_kind == syntax_kind && op->operand_type == operand_type)
             return op;
     }
@@ -45,27 +44,26 @@ BoundBinaryOperator::BoundBinaryOperator(Kind syntax_kind, BoundBinaryOperatorKi
 BoundBinaryOperator::BoundBinaryOperator(Kind syntax_kind, BoundBinaryOperatorKind kind, size_t left_type, size_t right_type, size_t result_type)
     : syntax_kind(syntax_kind), kind(kind), left_type(left_type), right_type(right_type), result_type(result_type) {}
 
-    std::vector<BoundBinaryOperator*> BoundBinaryOperator::operators = []{
-        std::vector<BoundBinaryOperator*> v = {
+std::vector<BoundBinaryOperator*> BoundBinaryOperator::operators = [] {
+    std::vector<BoundBinaryOperator*> v = {
         new BoundBinaryOperator(Kind::plus_token, BoundBinaryOperatorKind::Addition, variant_index<Value, size>()),
         new BoundBinaryOperator(Kind::minus_token, BoundBinaryOperatorKind::Subtraction, variant_index<Value, size>()),
         new BoundBinaryOperator(Kind::star_token, BoundBinaryOperatorKind::Multiplication, variant_index<Value, size>()),
         new BoundBinaryOperator(Kind::forward_slash_token, BoundBinaryOperatorKind::Division, variant_index<Value, size>()),
         new BoundBinaryOperator(Kind::double_ampersand_token, BoundBinaryOperatorKind::LogicalAnd, variant_index<Value, bool>()),
         new BoundBinaryOperator(Kind::double_pipe_token, BoundBinaryOperatorKind::LogicalOr, variant_index<Value, bool>())
-        };
-        return v;
-    }();
+    };
+    return v;
+}();
 
 BoundBinaryOperator* BoundBinaryOperator::Bind(Kind syntax_kind, size_t left_type, size_t right_type)
-    {
-        for (const auto &op : BoundBinaryOperator::operators)
-        {
-            if (op->syntax_kind == syntax_kind && op->left_type == left_type && op->right_type == right_type)
-                return op;
-        }
-        return nullptr;
+{
+    for (const auto &op : BoundBinaryOperator::operators) {
+        if (op->syntax_kind == syntax_kind && op->left_type == left_type && op->right_type == right_type)
+            return op;
     }
+    return nullptr;
+}
 
 BoundExpr *Binder::bind_literal_expr(LiteralExpr *syntax)
 {

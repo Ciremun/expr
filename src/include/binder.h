@@ -35,7 +35,7 @@ struct BoundUnaryOperator {
 
     BoundUnaryOperator(Kind syntax_kind, BoundUnaryOperatorKind kind, size_t operand_type);
     BoundUnaryOperator(Kind syntax_kind, BoundUnaryOperatorKind kind, size_t operand_type, size_t result_type);
-    
+
     static BoundUnaryOperator* Bind(Kind syntax_kind, size_t operand_type);
 };
 
@@ -49,7 +49,7 @@ struct BoundBinaryOperator {
 
     BoundBinaryOperator(Kind syntax_kind, BoundBinaryOperatorKind kind, size_t type);
     BoundBinaryOperator(Kind syntax_kind, BoundBinaryOperatorKind kind, size_t left_type, size_t right_type, size_t result_type);
-    
+
     static BoundBinaryOperator* Bind(Kind syntax_kind, size_t left_type, size_t right_type);
 };
 
