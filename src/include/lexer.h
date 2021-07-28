@@ -8,13 +8,15 @@
 #include "typedef.h"
 
 struct Lexer {
-    std::string text;
-    size position = 0;
+    std::string              text;
+    usize                    position = 0;
     std::vector<std::string> errors;
 
     Lexer(std::string text);
-    char current_char();
-    void next_char();
+    char  peek(int offset);
+    char  current_char();
+    char  lookahead();
+    void  next_char();
     Token lex();
 };
 

@@ -1,17 +1,27 @@
 #include "lexer.h"
 #include "kind.h"
+#include "parser.h"
 #include "util.h"
 
 Lexer::Lexer(std::string text)
-    : text(text), position(0)
+    : text(text), position(0) {}
+
+char Lexer::peek(int offset)
 {
+    usize index = position + offset;
+    if (index >= text.length())
+        return '\0';
+    return text[index];
 }
 
 char Lexer::current_char()
 {
-    if (position >= text.length())
-        return '\0';
-    return text[position];
+    return peek(0);
+}
+
+char Lexer::lookahead()
+{
+    return peek(1);
 }
 
 void Lexer::next_char()
@@ -31,42 +41,75 @@ Token Lexer::lex()
         do {
             next_char();
         } while (is_digit(current_char()));
-        size length = position - start;
+        size        length = position - start;
         std::string text = this->text.substr(start, length);
-        size value = 0;
+        usize       value = 0;
         if (!string_to_size(text, &value))
             errors.push_back(format("[ERROR] the number '%s' isn't valid size", text.c_str()));
-        return Token(Kind::number_token, start, text, value);
+        return Token(Kind::number_token, start, text, static_cast<size>(value));
     }
 
     if (current == ' ') {
         size start = position;
-        next_char();
-        while (current_char() == ' ')
+        do {
             next_char();
-        size length = position - start;
+        } while (current_char() == ' ');
+        size        length = position - start;
         std::string text = this->text.substr(start, length);
         return Token(Kind::space_token, start, text, nullptr);
     }
 
-    int temp = position;
-    position++;
+    if (is_letter(current)) {
+        size start = position;
+        do {
+            next_char();
+        } while (is_letter(current_char()));
+        size        length = position - start;
+        std::string text = this->text.substr(start, length);
+        Kind        kind = Facts::keyword_kind(text);
+        return Token(kind, start, text, nullptr);
+    }
 
     switch (current) {
     case '+':
-        return Token(Kind::plus_token,          temp, "+", nullptr);
+        return Token(Kind::plus_token, position++, "+", nullptr);
     case '-':
-        return Token(Kind::minus_token,         temp, "-", nullptr);
+        return Token(Kind::minus_token, position++, "-", nullptr);
     case '*':
-        return Token(Kind::star_token,          temp, "*", nullptr);
+        return Token(Kind::star_token, position++, "*", nullptr);
     case '/':
-        return Token(Kind::forward_slash_token, temp, "/", nullptr);
+        return Token(Kind::forward_slash_token, position++, "/", nullptr);
     case '(':
-        return Token(Kind::open_paren_token,    temp, "(", nullptr);
+        return Token(Kind::open_paren_token, position++, "(", nullptr);
     case ')':
-        return Token(Kind::close_paren_token,   temp, ")", nullptr);
+        return Token(Kind::close_paren_token, position++, ")", nullptr);
+    case '&': {
+        if (lookahead() == '&')
+            return Token(Kind::double_ampersand_token, position += 2, "&&", nullptr);
+        break;
+    }
+    case '|': {
+        if (lookahead() == '|')
+            return Token(Kind::double_pipe_token, position += 2, "||", nullptr);
+        break;
+    }
+    case '=': {
+        if (lookahead() == '=')
+            return Token(Kind::double_equals_token, position += 2, "==", nullptr);
+        break;
+    }
+    case '!': {
+        if (lookahead() == '=')
+            return Token(Kind::bang_equals_token, position += 2, "!=", nullptr);
+        return Token(Kind::bang_token, position++, "!", nullptr);
+        break;
+    }
     }
 
     errors.push_back(format("[ERROR] bad input char: '%c'", current));
+
+    int temp = position;
+    position++;
+
     return Token(Kind::error_token, temp, text.substr(temp, 1), nullptr);
 }

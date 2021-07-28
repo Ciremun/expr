@@ -1,21 +1,16 @@
 #include "expression.h"
 
 LiteralExpr::LiteralExpr(Token literal)
-    : literal(literal)
-{
-}
+    : literal(literal), value(literal.value) {}
 
-BinaryExpr::BinaryExpr(Expression* left, Token op, Expression* right)
-    : left(left), op(op), right(right)
-{
-}
+LiteralExpr::LiteralExpr(Token literal, Value value)
+    : literal(literal), value(value) {}
 
-ParenExpr::ParenExpr(Token open_paren, Expression* expr, Token close_paren)
-    : open_paren(open_paren), expr(expr), close_paren(close_paren)
-{
-}
+BinaryExpr::BinaryExpr(Expression *left, Token op, Expression *right)
+    : left(left), op(op), right(right) {}
 
-UnaryExpr::UnaryExpr(Token op, Expression* operand)
-    : op(op), operand(operand)
-{
-}
+ParenExpr::ParenExpr(Token open_paren, Expression *expr, Token close_paren)
+    : open_paren(open_paren), expr(expr), close_paren(close_paren) {}
+
+UnaryExpr::UnaryExpr(Token op, Expression *operand)
+    : op(op), operand(operand) {}

@@ -1,8 +1,10 @@
 #include <iostream>
+#include <iterator>
 #include <string>
 
-#include "tree.h"
 #include "eval.h"
+#include "tree.h"
+#include "util.h"
 
 int main()
 {
@@ -13,15 +15,30 @@ int main()
         if (input.empty()) {
             continue;
         }
-        Tree tree = tree.parse(input);
+        Tree       tree = tree.parse(input);
+        Binder     binder;
+        BoundExpr *bound_expr = binder.bind_expr(tree.root);
+
+        tree.errors.insert(
+            tree.errors.end(),
+            std::make_move_iterator(binder.errors.begin()),
+            std::make_move_iterator(binder.errors.end()));
+
         if (!tree.errors.empty()) {
             for (auto &err : tree.errors) {
                 printf("%s\n", err.c_str());
             }
         } else {
-            Eval eval(tree.root);
-            size result = eval.evaluate();
-            printf("%lld\n", result);
+            Eval  eval(bound_expr);
+            Value result = eval.evaluate();
+            std::visit([](auto &&val) {
+                if constexpr (std::is_same_v<bool, base_type<decltype(val)>>) {
+                    std::cout << (val ? "true" : "false") << std::endl;
+                } else if constexpr (std::is_same_v<size, base_type<decltype(val)>>) {
+                    std::cout << val << std::endl;
+                }
+            },
+            result);
         }
     }
     return 0;

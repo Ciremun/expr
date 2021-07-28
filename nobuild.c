@@ -1,9 +1,8 @@
 #define NOBUILD_IMPLEMENTATION
 #include "nobuild.h"
 
-#define CFLAGS "-Wall", "-Wextra", "-pedantic", "-std=c++17", "-oexpr", "-I./src/include/", "-I./src/syntax/"
-#define MSVC_FLAGS "/std:c++17", "/Feexpr.exe", "/Isrc/include/", "/Isrc/syntax/"
-
+#define CFLAGS "-Wall", "-Wextra", "-pedantic", "-std=c++17", "-oexpr", "-I./src/include/", "-I./src/syntax/", "-I./src/binding/"
+#define MSVC_FLAGS "/std:c++17", "/Feexpr.exe", "/Isrc/include/", "/Isrc/syntax/", "/Isrc/binding/"
 
 void format()
 {
@@ -40,7 +39,7 @@ void process_args(char **argv)
     if (strcmp(argv[1], "run") == 0) {
         build();
         run();
-    } else if (strcmp(argv[1], "format") == 0) {
+    } else if (strcmp(argv[1], "fmt") == 0 || strcmp(argv[1], "format") == 0) {
         format();
     }
     exit(0);

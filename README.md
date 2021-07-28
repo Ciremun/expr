@@ -5,4 +5,6 @@
 
 # thank
 
-https://github.com/terrajobst/minsk
+[Minsk](https://github.com/terrajobst/minsk)  
+[nobuild](https://github.com/tsoding/nobuild)  
+

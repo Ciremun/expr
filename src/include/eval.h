@@ -1,15 +1,16 @@
 #ifndef EVAL_H
 #define EVAL_H
 
+#include "binder.h"
 #include "expression.h"
 #include "typedef.h"
 
 struct Eval {
-    Expression* root;
+    BoundExpr *root;
 
-    Eval(Expression* root);
-    size evaluate();
-    size evaluate_expr(Expression* expr);
+    Eval(BoundExpr *root);
+    Value evaluate();
+    Value evaluate_expr(BoundExpr *expr);
 };
 
 #endif // EVAL_H
