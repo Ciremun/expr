@@ -14,21 +14,19 @@ struct Eval {
     Value evaluate_expr(BoundExpr *expr);
 };
 
-struct EvaluationResult
-{
+struct EvaluationResult {
     std::vector<std::string> diagnostics;
     Value value;
 
     EvaluationResult(std::vector<std::string> diagnostics, Value value);
 };
 
-struct Compilation
-{   
+struct Compilation {
     Tree *syntax;
 
     Compilation(Tree *syntax);
 
-    EvaluationResult* evaluate();    
+    EvaluationResult* evaluate();
 };
 
 #endif // EVAL_H

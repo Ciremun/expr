@@ -17,7 +17,7 @@ int main()
         }
         Tree* tree = Tree::parse(input);
         Compilation* compilation = new Compilation(tree);
-        EvaluationResult* result = compilation->evaluate(); 
+        EvaluationResult* result = compilation->evaluate();
 
         if (!result->diagnostics.empty()) {
             for (auto &err : result->diagnostics) {

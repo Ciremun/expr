@@ -5,14 +5,14 @@
 BoundExpr::BoundExpr(size_t type)
     : type(type) {}
 
-BoundUnaryExpr::BoundUnaryExpr(BoundUnaryOperator op, BoundExpr *operand)
-    : BoundExpr(op.result_type), op(op), operand(operand) {}
+BoundUnaryExpr::BoundUnaryExpr(BoundUnaryOperator *op, BoundExpr *operand)
+    : BoundExpr(op->result_type), op(op), operand(operand) {}
 
 BoundLiteralExpr::BoundLiteralExpr(Value value, size_t type)
     : BoundExpr(type), value(value) {}
 
-BoundBinaryExpr::BoundBinaryExpr(BoundExpr *left, BoundBinaryOperator op, BoundExpr *right)
-    : BoundExpr(op.result_type), left(left), op(op), right(right) {}
+BoundBinaryExpr::BoundBinaryExpr(BoundExpr *left, BoundBinaryOperator *op, BoundExpr *right)
+    : BoundExpr(op->result_type), left(left), op(op), right(right) {}
 
 BoundUnaryOperator::BoundUnaryOperator(Kind syntax_kind, BoundUnaryOperatorKind kind, size_t operand_type)
     : syntax_kind(syntax_kind), kind(kind), operand_type(operand_type), result_type(operand_type) {}
@@ -79,13 +79,13 @@ BoundExpr *Binder::bind_literal_expr(LiteralExpr *syntax)
 
 BoundExpr *Binder::bind_unary_expr(UnaryExpr *syntax)
 {
-    BoundExpr*        bound_operand = bind_expr(syntax->operand);
+    BoundExpr* bound_operand = bind_expr(syntax->operand);
     BoundUnaryOperator* bound_operator = BoundUnaryOperator::Bind(syntax->op.kind, bound_operand->type);
     if (bound_operator == nullptr) {
         errors.push_back(format("Unary operator <%s> is not defined for type <%s>", syntax->op.text.c_str(), variant_types[bound_operand->type]));
         return bound_operand;
     }
-    return new BoundUnaryExpr(*bound_operator, bound_operand);
+    return new BoundUnaryExpr(bound_operator, bound_operand);
 }
 
 BoundExpr *Binder::bind_binary_expr(BinaryExpr *syntax)
@@ -97,7 +97,7 @@ BoundExpr *Binder::bind_binary_expr(BinaryExpr *syntax)
         errors.push_back(format("Binary operator <%s> is not defined for types <%s> and <%s>", syntax->op.text.c_str(), variant_types[bound_left->type], variant_types[bound_right->type]));
         return bound_left;
     }
-    return new BoundBinaryExpr(bound_left, *bound_operator, bound_right);
+    return new BoundBinaryExpr(bound_left, bound_operator, bound_right);
 }
 
 BoundExpr *Binder::bind_expr(Expression *syntax)

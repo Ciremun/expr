@@ -17,7 +17,7 @@ Value Eval::evaluate_expr(BoundExpr *expr)
         Value left_val = evaluate_expr(binary_expr->left);
         Value right_val = evaluate_expr(binary_expr->right);
 
-        switch (binary_expr->op.kind) {
+        switch (binary_expr->op->kind) {
         case BoundBinaryOperatorKind::Addition:
             return std::get<size>(left_val) + std::get<size>(right_val);
         case BoundBinaryOperatorKind::Subtraction:
@@ -69,7 +69,7 @@ Value Eval::evaluate_expr(BoundExpr *expr)
     if (BoundUnaryExpr *unary_expr = dynamic_cast<BoundUnaryExpr *>(expr)) {
         Value value = evaluate_expr(unary_expr->operand);
 
-        switch (unary_expr->op.kind) {
+        switch (unary_expr->op->kind) {
         case BoundUnaryOperatorKind::Identity:
             return std::get<size>(value);
         case BoundUnaryOperatorKind::Negation:
@@ -93,14 +93,13 @@ EvaluationResult* Compilation::evaluate()
 {
     Binder* binder = new Binder();
     BoundExpr* bound_expr = binder->bind_expr(this->syntax->root);
-    
-    syntax->errors.insert(
-            syntax->errors.end(),
-            std::make_move_iterator(binder->errors.begin()),
-            std::make_move_iterator(binder->errors.end()));
 
-    if (!syntax->errors.empty())
-    {
+    syntax->errors.insert(
+        syntax->errors.end(),
+        std::make_move_iterator(binder->errors.begin()),
+        std::make_move_iterator(binder->errors.end()));
+
+    if (!syntax->errors.empty()) {
         return new EvaluationResult(syntax->errors, nullptr);
     }
 

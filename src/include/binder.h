@@ -55,20 +55,20 @@ struct BoundBinaryOperator {
 };
 
 struct BoundUnaryExpr : BoundExpr {
-    BoundUnaryOperator     op;
-    BoundExpr *            operand;
+    BoundUnaryOperator*    op;
+    BoundExpr*             operand;
     BoundNodeKind          kind = BoundNodeKind::unary_expr;
 
-    BoundUnaryExpr(BoundUnaryOperator op, BoundExpr *operand);
+    BoundUnaryExpr(BoundUnaryOperator* op, BoundExpr *operand);
 };
 
 struct BoundBinaryExpr : BoundExpr {
     BoundExpr *             left;
-    BoundBinaryOperator     op;
+    BoundBinaryOperator*    op;
     BoundExpr *             right;
     BoundNodeKind           kind = BoundNodeKind::binary_expr;
 
-    BoundBinaryExpr(BoundExpr *left, BoundBinaryOperator op, BoundExpr *right);
+    BoundBinaryExpr(BoundExpr *left, BoundBinaryOperator *op, BoundExpr *right);
 };
 
 
