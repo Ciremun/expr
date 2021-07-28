@@ -32,16 +32,36 @@ Value Eval::evaluate_expr(BoundExpr *expr)
             return std::get<bool>(left_val) || std::get<bool>(right_val);
         case BoundBinaryOperatorKind::Equals:
             return std::visit(overload{
-                        [](bool left, bool right) { return left == right; },
-                        [](size left, size right) { return left == right; },
-                        [](auto, auto) { runtime_error("%d: unreachable", __LINE__); return false; }
-                    }, left_val, right_val);
+                [](bool left, bool right)
+                {
+                    return left == right;
+                },
+                [](size left, size right)
+                {
+                    return left == right;
+                },
+                [](auto, auto)
+                {
+                    runtime_error("%d: unreachable", __LINE__);
+                    return false;
+                }
+            }, left_val, right_val);
         case BoundBinaryOperatorKind::NotEquals:
             return std::visit(overload{
-                        [](bool left, bool right) { return left != right; },
-                        [](size left, size right) { return left != right; },
-                        [](auto, auto) { runtime_error("%d: unreachable", __LINE__); return false; }
-                    }, left_val, right_val);
+                [](bool left, bool right)
+                {
+                    return left != right;
+                },
+                [](size left, size right)
+                {
+                    return left != right;
+                },
+                [](auto, auto)
+                {
+                    runtime_error("%d: unreachable", __LINE__);
+                    return false;
+                }
+            }, left_val, right_val);
         default:
             runtime_error("unexpected binary operator: %s\n", binary_expr->kind);
         }
