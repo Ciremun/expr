@@ -28,7 +28,7 @@ struct Parser {
     Token       match_token(Kind kind);
     Expression *parse_expression(int parent_precedence = 0);
     Expression *parse_primary_expression();
-    Tree        parse();
+    Tree*       parse();
 };
 
 #endif // PARSER_H

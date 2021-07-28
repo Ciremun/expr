@@ -82,3 +82,29 @@ Value Eval::evaluate_expr(BoundExpr *expr)
     }
     runtime_error("unexpected expr: %s\n", expr->kind);
 }
+
+EvaluationResult::EvaluationResult(std::vector<std::string> diagnostics, Value value)
+    : diagnostics(diagnostics), value(value) {}
+
+Compilation::Compilation(Tree *syntax)
+    : syntax(syntax) {}
+
+EvaluationResult* Compilation::evaluate()
+{
+    Binder* binder = new Binder();
+    BoundExpr* bound_expr = binder->bind_expr(this->syntax->root);
+    
+    syntax->errors.insert(
+            syntax->errors.end(),
+            std::make_move_iterator(binder->errors.begin()),
+            std::make_move_iterator(binder->errors.end()));
+
+    if (!syntax->errors.empty())
+    {
+        return new EvaluationResult(syntax->errors, nullptr);
+    }
+
+    Eval* evaluator = new Eval(bound_expr);
+    Value value = evaluator->evaluate();
+    return new EvaluationResult(syntax->errors, value);
+}

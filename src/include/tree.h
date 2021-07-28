@@ -14,7 +14,7 @@ struct Tree {
 
     Tree(const std::vector<std::string> &errors, Expression *root, Token eof);
 
-    Tree parse(std::string text);
+    static Tree* parse(std::string text);
 };
 
 #endif // TREE_H

@@ -92,11 +92,11 @@ Expression *Parser::parse_primary_expression()
     }
 }
 
-Tree Parser::parse()
+Tree* Parser::parse()
 {
     Expression *expression = parse_expression();
     Token       eof = match_token(Kind::eof_token);
-    return Tree(errors, expression, eof);
+    return new Tree(errors, expression, eof);
 }
 
 int Facts::unary_operator_precedence(Kind kind)

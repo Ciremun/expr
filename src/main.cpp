@@ -15,22 +15,15 @@ int main()
         if (input.empty()) {
             continue;
         }
-        Tree       tree = tree.parse(input);
-        Binder     binder;
-        BoundExpr *bound_expr = binder.bind_expr(tree.root);
+        Tree* tree = Tree::parse(input);
+        Compilation* compilation = new Compilation(tree);
+        EvaluationResult* result = compilation->evaluate(); 
 
-        tree.errors.insert(
-            tree.errors.end(),
-            std::make_move_iterator(binder.errors.begin()),
-            std::make_move_iterator(binder.errors.end()));
-
-        if (!tree.errors.empty()) {
-            for (auto &err : tree.errors) {
+        if (!result->diagnostics.empty()) {
+            for (auto &err : result->diagnostics) {
                 printf("%s\n", err.c_str());
             }
         } else {
-            Eval  eval(bound_expr);
-            Value result = eval.evaluate();
             std::visit([](auto &&val) {
                 if constexpr (std::is_same_v<bool, base_type<decltype(val)>>) {
                     std::cout << (val ? "true" : "false") << std::endl;
@@ -38,7 +31,7 @@ int main()
                     std::cout << val << std::endl;
                 }
             },
-            result);
+            result->value);
         }
     }
     return 0;
