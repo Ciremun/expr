@@ -108,5 +108,7 @@ BoundExpr *Binder::bind_expr(Expression *syntax)
         return bind_unary_expr(unary_expr);
     if (BinaryExpr *binary_expr = dynamic_cast<BinaryExpr *>(syntax))
         return bind_binary_expr(binary_expr);
+    if (ParenExpr *paren_expr = dynamic_cast<ParenExpr *>(syntax))
+        return bind_expr(paren_expr->expr);
     runtime_error("Unexpected syntax <%s>\n", kinds[syntax->kind]);
 }
