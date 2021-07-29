@@ -1,18 +1,14 @@
 #ifndef TREE_H
 #define TREE_H
 
-#include <string>
-#include <vector>
-
-#include "expression.h"
-#include "token.h"
+#include "diagnostic.h"
 
 struct Tree {
-    std::vector<std::string> errors;
-    Expression *             root;
-    Token                    eof;
+    DiagnosticBag* diagnostics;
+    Expression * root;
+    Token eof;
 
-    Tree(const std::vector<std::string> &errors, Expression *root, Token eof);
+    Tree(DiagnosticBag* diagnostics, Expression *root, Token eof);
 
     static Tree* parse(std::string text);
 };

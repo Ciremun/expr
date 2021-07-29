@@ -1,8 +1,8 @@
 #define NOBUILD_IMPLEMENTATION
 #include "nobuild.h"
 
-#define CFLAGS "-Wall", "-Wextra", "-pedantic", "-std=c++17", "-oexpr", "-I./src/include/", "-I./src/syntax/", "-I./src/binding/"
-#define MSVC_FLAGS "/std:c++17", "/Feexpr.exe", "/Isrc/include/", "/Isrc/syntax/", "/Isrc/binding/"
+#define CFLAGS "-Wall", "-Wextra", "-pedantic", "-std=c++17", "-oexpr", "-I./src/", "-I./src/include/", "-I./src/syntax/", "-I./src/binding/"
+#define MSVC_FLAGS "/std:c++17", "/Feexpr.exe", "/Isrc/", "/Isrc/include/", "/Isrc/syntax/", "/Isrc/binding/"
 
 void format()
 {
@@ -14,14 +14,14 @@ void build()
     char *cxx = getenv("CXX");
 #ifdef _WIN32
     if (cxx == NULL || strcmp(cxx, "cl") == 0 || strcmp(cxx, "cl.exe") == 0)
-        CMD("cl.exe", "src/main.cpp", "src/expr.cpp", MSVC_FLAGS);
+        CMD("cl.exe", "main.cpp", "expr.cpp", MSVC_FLAGS);
     else
-        CMD(cxx, CFLAGS, "src/main.cpp", "src/expr.cpp");
+        CMD(cxx, CFLAGS, "main.cpp", "expr.cpp");
 #else
     if (cxx == NULL)
-        CMD("g++", CFLAGS, "src/main.cpp", "src/expr.cpp");
+        CMD("g++", CFLAGS, "main.cpp", "expr.cpp");
     else
-        CMD(cxx, CFLAGS, "src/main.cpp", "src/expr.cpp");
+        CMD(cxx, CFLAGS, "main.cpp", "expr.cpp");
 #endif
 }
 
@@ -36,10 +36,13 @@ void run()
 
 void process_args(char **argv)
 {
-    if (strcmp(argv[1], "run") == 0) {
+    if (strcmp(argv[1], "run") == 0)
+    {
         build();
         run();
-    } else if (strcmp(argv[1], "fmt") == 0 || strcmp(argv[1], "format") == 0) {
+    }
+    else if (strcmp(argv[1], "fmt") == 0 || strcmp(argv[1], "format") == 0)
+    {
         format();
     }
     exit(0);

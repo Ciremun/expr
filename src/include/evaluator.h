@@ -1,10 +1,12 @@
-#ifndef EVAL_H
-#define EVAL_H
+#ifndef EVALUATOR_H
+#define EVALUATOR_H
+
+#include <vector>
 
 #include "binder.h"
-#include "expression.h"
 #include "typedef.h"
 #include "tree.h"
+#include "diagnostic.h"
 
 struct Eval {
     BoundExpr *root;
@@ -15,10 +17,10 @@ struct Eval {
 };
 
 struct EvaluationResult {
-    std::vector<std::string> diagnostics;
+    DiagnosticBag* diagnostics;
     Value value;
 
-    EvaluationResult(std::vector<std::string> diagnostics, Value value);
+    EvaluationResult(DiagnosticBag* diagnostics, Value value);
 };
 
 struct Compilation {
@@ -29,4 +31,4 @@ struct Compilation {
     EvaluationResult* evaluate();
 };
 
-#endif // EVAL_H
+#endif // EVALUATOR_H

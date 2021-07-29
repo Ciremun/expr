@@ -30,7 +30,7 @@ enum Kind : int {
     count
 };
 
-constexpr const char *kinds[] = {
+const char *const kinds[] = {
     "eof_token",
     "error_token",
     "number_token",

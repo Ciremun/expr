@@ -1,22 +1,18 @@
 #ifndef LEXER_H
 #define LEXER_H
 
-#include <string>
-#include <vector>
-
-#include "token.h"
-#include "typedef.h"
+#include "diagnostic.h"
 
 struct Lexer {
-    std::string              text;
-    usize                    position = 0;
-    std::vector<std::string> errors;
+    std::string text;
+    usize position = 0;
+    DiagnosticBag* diagnostics = new DiagnosticBag();
 
     Lexer(std::string text);
-    char  peek(int offset);
-    char  current_char();
-    char  lookahead();
-    void  next_char();
+    char peek(int offset);
+    char current_char();
+    char lookahead();
+    void next_char();
     Token lex();
 };
 

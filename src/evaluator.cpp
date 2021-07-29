@@ -1,4 +1,4 @@
-#include "eval.h"
+#include "evaluator.h"
 
 Eval::Eval(BoundExpr *root)
     : root(root) {}
@@ -83,7 +83,7 @@ Value Eval::evaluate_expr(BoundExpr *expr)
     runtime_error("unexpected expr: %s\n", expr->kind);
 }
 
-EvaluationResult::EvaluationResult(std::vector<std::string> diagnostics, Value value)
+EvaluationResult::EvaluationResult(DiagnosticBag* diagnostics, Value value)
     : diagnostics(diagnostics), value(value) {}
 
 Compilation::Compilation(Tree *syntax)
@@ -92,18 +92,18 @@ Compilation::Compilation(Tree *syntax)
 EvaluationResult* Compilation::evaluate()
 {
     Binder* binder = new Binder();
-    BoundExpr* bound_expr = binder->bind_expr(this->syntax->root);
+    BoundExpr* bound_expr = binder->bind_expr(syntax->root);
 
-    syntax->errors.insert(
-        syntax->errors.end(),
-        std::make_move_iterator(binder->errors.begin()),
-        std::make_move_iterator(binder->errors.end()));
+    syntax->diagnostics->content.insert(
+        syntax->diagnostics->content.end(),
+        std::make_move_iterator(binder->diagnostics->content.begin()),
+        std::make_move_iterator(binder->diagnostics->content.end()));
 
-    if (!syntax->errors.empty()) {
-        return new EvaluationResult(syntax->errors, nullptr);
+    if (!syntax->diagnostics->content.empty()) {
+        return new EvaluationResult(syntax->diagnostics, nullptr);
     }
 
     Eval* evaluator = new Eval(bound_expr);
     Value value = evaluator->evaluate();
-    return new EvaluationResult(syntax->errors, value);
+    return new EvaluationResult(syntax->diagnostics, value);
 }

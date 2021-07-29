@@ -1,8 +1,7 @@
 #include <iostream>
-#include <iterator>
 #include <string>
 
-#include "eval.h"
+#include "evaluator.h"
 #include "tree.h"
 #include "util.h"
 
@@ -19,16 +18,23 @@ int main()
         Compilation* compilation = new Compilation(tree);
         EvaluationResult* result = compilation->evaluate();
 
-        if (!result->diagnostics.empty()) {
-            for (auto &err : result->diagnostics) {
-                printf("%s\n", err.c_str());
+        if (!result->diagnostics->content.empty()) {
+            for (auto &err : result->diagnostics->content) {
+                printf("[ERROR] %s\n", err->message.c_str());
             }
         } else {
-            std::visit([](auto &&val) {
-                if constexpr (std::is_same_v<bool, base_type<decltype(val)>>) {
-                    std::cout << (val ? "true" : "false") << std::endl;
-                } else if constexpr (std::is_same_v<size, base_type<decltype(val)>>) {
-                    std::cout << val << std::endl;
+            std::visit(overload {
+                [](bool val)
+                {
+                    printf("%s\n", val ? "true" : "false");
+                },
+                [](size val)
+                {
+                    printf("%lld\n", val);
+                },
+                [](auto)
+                {
+                    runtime_error("unreachable");
                 }
             },
             result->value);

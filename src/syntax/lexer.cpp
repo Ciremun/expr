@@ -1,5 +1,4 @@
 #include "lexer.h"
-#include "kind.h"
 #include "parser.h"
 #include "util.h"
 
@@ -41,11 +40,11 @@ Token Lexer::lex()
         do {
             next_char();
         } while (is_digit(current_char()));
-        size        length = position - start;
+        size length = position - start;
         std::string text = this->text.substr(start, length);
-        usize       value = 0;
+        usize value = 0;
         if (!string_to_size(text, &value))
-            errors.push_back(format("[ERROR] the number '%s' isn't valid size", text.c_str()));
+            this->diagnostics->report_invalid_number(new TextSpan(start, length), this->text, variant_index<Value, size>());
         return Token(Kind::number_token, start, text, static_cast<size>(value));
     }
 
@@ -54,7 +53,7 @@ Token Lexer::lex()
         do {
             next_char();
         } while (current_char() == ' ');
-        size        length = position - start;
+        size length = position - start;
         std::string text = this->text.substr(start, length);
         return Token(Kind::space_token, start, text, nullptr);
     }
@@ -64,9 +63,9 @@ Token Lexer::lex()
         do {
             next_char();
         } while (is_letter(current_char()));
-        size        length = position - start;
+        size length = position - start;
         std::string text = this->text.substr(start, length);
-        Kind        kind = Facts::keyword_kind(text);
+        Kind kind = Parser::Facts::keyword_kind(text);
         return Token(kind, start, text, nullptr);
     }
 
@@ -106,7 +105,7 @@ Token Lexer::lex()
     }
     }
 
-    errors.push_back(format("[ERROR] bad input char: '%c'", current));
+    diagnostics->report_bad_char(position, current);
 
     int temp = position;
     position++;
