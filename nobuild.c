@@ -14,14 +14,14 @@ void build()
     char *cxx = getenv("CXX");
 #ifdef _WIN32
     if (cxx == NULL || strcmp(cxx, "cl") == 0 || strcmp(cxx, "cl.exe") == 0)
-        CMD("cl.exe", "main.cpp", "expr.cpp", MSVC_FLAGS);
+        CMD("cl.exe", "src/main.cpp", "src/expr.cpp", MSVC_FLAGS);
     else
-        CMD(cxx, CFLAGS, "main.cpp", "expr.cpp");
+        CMD(cxx, CFLAGS, "src/main.cpp", "src/expr.cpp");
 #else
     if (cxx == NULL)
-        CMD("g++", CFLAGS, "main.cpp", "expr.cpp");
+        CMD("g++", CFLAGS, "src/main.cpp", "src/expr.cpp");
     else
-        CMD(cxx, CFLAGS, "main.cpp", "expr.cpp");
+        CMD(cxx, CFLAGS, "src/main.cpp", "src/expr.cpp");
 #endif
 }
 
@@ -50,6 +50,8 @@ void process_args(char **argv)
 
 int main(int argc, char **argv)
 {
+    GO_REBUILD_URSELF(argc, argv);
+
     if (argc > 1)
         process_args(argv);
     else
