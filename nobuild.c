@@ -1,6 +1,8 @@
 #define NOBUILD_IMPLEMENTATION
 #include "nobuild.h"
 
+#define PANIC(fmt, ...) MY_PANIC(fmt, __VA_ARGS__)
+
 #define CFLAGS "-Wall", "-Wextra", "-pedantic", "-std=c++17", "-I./src/include/"
 #define MSVC_FLAGS "/std:c++17", "/Isrc/include/"
 
@@ -54,6 +56,14 @@
 
 int force_rebuild = 0;
 char *cxx;
+
+void MY_PANIC(Cstr fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    VLOG(stderr, "ERRO", fmt, args);
+    va_end(args);
+}
 
 void async_obj_foreach_file_in_dirs(int msvc, Cstr first, ...)
 {
