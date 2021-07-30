@@ -1,5 +1,6 @@
 #include "diagnostic.h"
 #include "typedef.h"
+#include "util.h"
 
 Diagnostic::Diagnostic(TextSpan *span, std::string message)
     : span(span), message(message) {}

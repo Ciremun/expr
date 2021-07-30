@@ -1,6 +1,8 @@
 #ifndef TEXT_SPAN_H
 #define TEXT_SPAN_H
 
+#include <cstddef>
+
 struct TextSpan {
     size_t start;
     size_t length;

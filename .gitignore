@@ -3,3 +3,5 @@ expr
 nobuild
 *.exe
 *.obj
+*.o
+*.old

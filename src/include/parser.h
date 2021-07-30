@@ -1,7 +1,14 @@
 #ifndef PARSER_H
 #define PARSER_H
 
+#include <string>
+#include <vector>
+
 #include "diagnostic.h"
+#include "typedef.h"
+#include "token.h"
+#include "tree.h"
+#include "expression.h"
 
 struct Parser {
     std::vector<Token> tokens;

@@ -2,6 +2,7 @@
 #define TREE_H
 
 #include "diagnostic.h"
+#include "expression.h"
 
 struct Tree {
     DiagnosticBag* diagnostics;

@@ -1,7 +1,10 @@
 #ifndef TOKEN_H
 #define TOKEN_H
 
+#include <string>
+
 #include "text_span.h"
+#include "typedef.h"
 
 struct Token {
     Kind kind = Kind::error_token;

@@ -1,4 +1,5 @@
 #include "evaluator.h"
+#include "util.h"
 
 Eval::Eval(BoundExpr *root)
     : root(root) {}

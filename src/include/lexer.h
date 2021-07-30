@@ -2,6 +2,8 @@
 #define LEXER_H
 
 #include "diagnostic.h"
+#include "typedef.h"
+#include "token.h"
 
 struct Lexer {
     std::string text;

@@ -1,4 +1,5 @@
 #include "parser.h"
+#include "lexer.h"
 
 Parser::Parser(std::string text)
 {
