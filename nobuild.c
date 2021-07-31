@@ -6,67 +6,62 @@
 
 #define PROCESSES_CAPACITY 256
 
-#define ASYNC_BUILD(msvc, object_file_extenstion, ...)                              \
-    do                                                                              \
-    {                                                                               \
-        async_obj_foreach_file_in_dirs(msvc,                                        \
-            "src/", "src/syntax/", "src/binding/", NULL);                           \
-        Cstr_Array line = cstr_array_make(__VA_ARGS__, NULL);                       \
-        FOREACH_FILE_IN_DIR(file, ".",                                              \
-        {                                                                           \
-            if (ENDS_WITH(file, object_file_extenstion))                            \
-                line = cstr_array_append(line, strdup(file));                       \
-        });                                                                         \
-        Cmd cmd = {.line = line};                                                   \
-        INFO("CMD: %s", cmd_show(cmd));                                             \
-        cmd_run_sync(cmd);                                                          \
+#define ASYNC_BUILD(object_file_extenstion, ...)                                     \
+    do                                                                               \
+    {                                                                                \
+        async_obj_foreach_file_in_dirs("src/", "src/syntax/", "src/binding/", NULL); \
+        Cstr_Array line = cstr_array_make(__VA_ARGS__, NULL);                        \
+        FOREACH_FILE_IN_DIR(file, ".",                                               \
+        {                                                                            \
+            if (ENDS_WITH(file, object_file_extenstion))                             \
+                line = cstr_array_append(line, strdup(file));                        \
+        });                                                                          \
+        Cmd cmd = {.line = line};                                                    \
+        INFO("CMD: %s", cmd_show(cmd));                                              \
+        cmd_run_sync(cmd);                                                           \
     } while (0)
 
-#define ASYNC_OBJ_FOREACH_FILE_IN_DIR(directory,                                    \
-                                      source_extension,                             \
-                                      msvc)                                         \
-    do                                                                              \
-    {                                                                               \
-        FOREACH_FILE_IN_DIR(file, directory,                                        \
-            {                                                                       \
-                if (ENDS_WITH(file, source_extension))                              \
-                {                                                                   \
-                    Cstr src = CONCAT(directory, strdup(file));                     \
-                    Cstr obj = msvc ?                                               \
-                        CONCAT(NOEXT(file), ".obj") :                               \
-                        CONCAT(NOEXT(file), ".o");                                  \
-                    if (!PATH_EXISTS(obj)                                           \
-                        ||                                                          \
-                        (force_rebuild || is_path1_modified_after_path2(src, obj))) \
-                    {                                                               \
-                        Cstr_Array line = msvc ?                                    \
-                            cstr_array_make(cxx, MSVC_FLAGS, src, "/c", NULL) :     \
-                            cstr_array_make(cxx, CFLAGS, src, "-c", NULL);          \
-                        Cmd cmd = {                                                 \
-                            .line = line};                                          \
-                        INFO("CMD: %s", cmd_show(cmd));                             \
-                        proc[proc_count] = cmd_run_async(cmd, NULL, NULL);          \
-                        proc_count++;                                               \
-                    }                                                               \
-                }                                                                   \
-            });                                                                     \
-    } while (0)
-
+int msvc = 0;
 int force_rebuild = 0;
 char *cxx;
 
-void async_obj_foreach_file_in_dirs(int msvc, Cstr first, ...)
+void async_obj_foreach_file_in_dir(Pid *proc, size_t *proc_count, Cstr directory)
+{
+    FOREACH_FILE_IN_DIR(file, directory,
+    {
+        if (ENDS_WITH(file, ".cpp"))
+        {
+            Cstr src = CONCAT(directory, strdup(file));
+            Cstr obj = msvc ?
+                CONCAT(NOEXT(file), ".obj") :
+                CONCAT(NOEXT(file), ".o");
+            if (!PATH_EXISTS(obj) ||
+                (force_rebuild || is_path1_modified_after_path2(src, obj)))
+            {
+                Cstr_Array line = msvc ?
+                    cstr_array_make(cxx, MSVC_FLAGS, src, "/c", NULL) :
+                    cstr_array_make(cxx, CFLAGS, src, "-c", NULL);
+                Cmd cmd = {
+                    .line = line};
+                INFO("CMD: %s", cmd_show(cmd));
+                proc[(*proc_count)++] = cmd_run_async(cmd, NULL, NULL);
+            }
+        }
+    });
+}
+
+void async_obj_foreach_file_in_dirs(Cstr first, ...)
 {
     Pid proc[PROCESSES_CAPACITY];
     size_t proc_count = 0;
-    ASYNC_OBJ_FOREACH_FILE_IN_DIR(first, ".cpp", msvc);
+    async_obj_foreach_file_in_dir(proc, &proc_count, first);
     va_list args;
     va_start(args, first);
     for (Cstr directory = va_arg(args, Cstr);
          directory != NULL;
          directory = va_arg(args, Cstr))
     {
-        ASYNC_OBJ_FOREACH_FILE_IN_DIR(directory, ".cpp", msvc);
+        async_obj_foreach_file_in_dir(proc, &proc_count, directory);
     }
     va_end(args);
     for (size_t i = 0; i < proc_count; ++i)
@@ -84,17 +79,18 @@ void build()
 #ifdef _WIN32
     if (cxx == NULL || strcmp(cxx, "cl") == 0 || strcmp(cxx, "cl.exe") == 0)
     {
+        msvc = 1;
         cxx = "cl";
-        ASYNC_BUILD(1, ".obj", "LINK", "/OUT:expr.exe");
+        ASYNC_BUILD(".obj", "LINK", "/OUT:expr.exe");
     }
     else
     {
-        ASYNC_BUILD(0, ".o", cxx, CFLAGS, "-oexpr");
+        ASYNC_BUILD(".o", cxx, CFLAGS, "-oexpr");
     }
 #else
     if (cxx == NULL)
         cxx = "g++";
-    ASYNC_BUILD(0, ".o", cxx, CFLAGS, "-oexpr");
+    ASYNC_BUILD(".o", cxx, CFLAGS, "-oexpr");
 #endif
 }
 
@@ -138,6 +134,11 @@ void process_args(int argc, char **argv)
 int main(int argc, char **argv)
 {
     GO_REBUILD_URSELF(argc, argv);
+
+#ifdef _WIN32
+    if (PATH_EXISTS(CONCAT(NOEXT(argv[0]), ".obj")))
+        RM(CONCAT(NOEXT(argv[0]), ".obj"));
+#endif
 
     if (argc > 1)
         process_args(argc, argv);
