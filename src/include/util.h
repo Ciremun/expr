@@ -16,7 +16,10 @@ bool string_to_size(const std::string &str, usize *out);
 template <typename... Args>
 [[noreturn]] void runtime_error(const char *fmt, Args... args)
 {
-    printf(fmt, args...);
+    if constexpr (!sizeof...(args))
+        puts(fmt);
+    else
+        printf(fmt, args...);
     exit(1);
 }
 
