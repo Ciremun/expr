@@ -35,8 +35,8 @@ Token Lexer::lex()
 
     char current = current_char();
 
+    size start = position;
     if (is_digit(current)) {
-        size start = position;
         do {
             next_char();
         } while (is_digit(current_char()));
@@ -49,7 +49,6 @@ Token Lexer::lex()
     }
 
     if (current == ' ') {
-        size start = position;
         do {
             next_char();
         } while (current_char() == ' ');
@@ -59,7 +58,6 @@ Token Lexer::lex()
     }
 
     if (is_letter(current)) {
-        size start = position;
         do {
             next_char();
         } while (is_letter(current_char()));
