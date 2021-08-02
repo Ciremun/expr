@@ -93,6 +93,8 @@ Token Lexer::lex()
     case '=': {
         if (lookahead() == '=')
             return Token(Kind::double_equals_token, position += 2, "==", nullptr);
+        else
+            return Token(Kind::equals_token, position++, "=", nullptr);
         break;
     }
     case '!': {

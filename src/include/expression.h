@@ -48,4 +48,20 @@ struct ParenExpr : Expression {
     ParenExpr(Token open_paren, Expression *expr, Token close_paren);
 };
 
+struct NameExpr : Expression {
+    Token identifier;
+    Kind kind = Kind::name_expr;
+
+    NameExpr(Token identifier);
+};
+
+struct AssignmentExpr : Expression {
+    Token identifier;
+    Token equals;
+    Expression *expr;
+    Kind kind = Kind::assignment_expr;
+
+    AssignmentExpr(Token identifier, Token equals, Expression *expr);
+};
+
 #endif // EXPRESSION_H

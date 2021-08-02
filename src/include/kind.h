@@ -14,6 +14,7 @@ enum Kind : int {
     forward_slash_token,
     identifier_token,
     bang_token,
+    equals_token,
     double_ampersand_token,
     double_pipe_token,
     double_equals_token,
@@ -23,6 +24,8 @@ enum Kind : int {
     unary_expr,
     binary_expr,
     paren_expr,
+    name_expr,
+    assignment_expr,
 
     true_keyword,
     false_keyword,
@@ -43,6 +46,7 @@ const char *const kinds[] = {
     "forward_slash_token",
     "identifier_token",
     "bang_token",
+    "equals_token",
     "double_ampersand_token",
     "double_pipe_token",
     "double_equals_token",
@@ -51,6 +55,8 @@ const char *const kinds[] = {
     "unary_expr",
     "binary_expr",
     "paren_expr",
+    "name_expr",
+    "assignment_expr",
     "true_keyword",
     "false_keyword",
 };

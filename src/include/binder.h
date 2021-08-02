@@ -55,7 +55,7 @@ struct BoundBinaryOperator {
 };
 
 struct BoundUnaryExpr : BoundExpr {
-    BoundUnaryOperator*op;
+    BoundUnaryOperator* op;
     BoundExpr* operand;
     BoundNodeKind kind = BoundNodeKind::unary_expr;
 
@@ -75,10 +75,13 @@ struct BoundBinaryExpr : BoundExpr {
 struct Binder {
     DiagnosticBag* diagnostics = new DiagnosticBag();
 
-    BoundExpr * bind_literal_expr(LiteralExpr *syntax);
-    BoundExpr * bind_unary_expr(UnaryExpr *syntax);
-    BoundExpr * bind_binary_expr(BinaryExpr *syntax);
-    BoundExpr * bind_expr(Expression *syntax);
+    BoundExpr* bind_literal_expr(LiteralExpr *syntax);
+    BoundExpr* bind_unary_expr(UnaryExpr *syntax);
+    BoundExpr* bind_binary_expr(BinaryExpr *syntax);
+    BoundExpr* bind_paren_expr(ParenExpr *syntax);
+    BoundExpr* bind_name_expr(NameExpr *syntax);
+    BoundExpr* bind_assignment_expr(AssignmentExpr *syntax);
+    BoundExpr* bind_expr(Expression *syntax);
 };
 
 #endif // BINDER_H

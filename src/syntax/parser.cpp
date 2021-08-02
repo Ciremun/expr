@@ -49,28 +49,9 @@ Token Parser::match_token(Kind kind)
     return Token(kind, cur.position, "\0", nullptr);
 }
 
-Expression *Parser::parse_expression(int parent_precedence)
+Expression *Parser::parse_expression()
 {
-    Expression *left;
-    int unary_operator_precedence = Parser::Facts::unary_operator_precedence(current().kind);
-    if (unary_operator_precedence != 0 && unary_operator_precedence >= parent_precedence) {
-        Token op = next_token();
-        Expression *operand = parse_expression(unary_operator_precedence);
-        left = new UnaryExpr(op, operand);
-    } else {
-        left = parse_primary_expression();
-    }
-
-    while (1) {
-        int precedence = Parser::Facts::binary_operator_precedence(current().kind);
-        if (precedence == 0 || precedence <= parent_precedence)
-            break;
-        Token operator_token = next_token();
-        Expression *right = parse_expression(precedence);
-        left = new BinaryExpr(left, operator_token, right);
-    }
-
-    return left;
+    return parse_assignment_expression();
 }
 
 Expression *Parser::parse_primary_expression()
@@ -89,11 +70,51 @@ Expression *Parser::parse_primary_expression()
         bool value = keyword_token.kind == Kind::true_keyword;
         return new LiteralExpr(keyword_token, value);
     }
+    case Kind::identifier_token: {
+        Token identifier = next_token();
+        return new NameExpr(identifier);
+    }
     default: {
         Token number = match_token(Kind::number_token);
         return new LiteralExpr(number);
     }
     }
+}
+
+Expression *Parser::parse_assignment_expression()
+{
+    if (peek(0).kind == Kind::identifier_token &&
+            peek(1).kind == Kind::double_equals_token) {
+        Token identifier = next_token();
+        Token op = next_token();
+        Expression *right = parse_assignment_expression();
+        return new AssignmentExpr(identifier, op, right);
+    }
+    return parse_binary_expression();
+}
+
+Expression *Parser::parse_binary_expression(int parent_precedence)
+{
+    Expression *left;
+    int unary_operator_precedence = Parser::Facts::unary_operator_precedence(current().kind);
+    if (unary_operator_precedence != 0 && unary_operator_precedence >= parent_precedence) {
+        Token op = next_token();
+        Expression *operand = parse_binary_expression(unary_operator_precedence);
+        left = new UnaryExpr(op, operand);
+    } else {
+        left = parse_primary_expression();
+    }
+
+    while (1) {
+        int precedence = Parser::Facts::binary_operator_precedence(current().kind);
+        if (precedence == 0 || precedence <= parent_precedence)
+            break;
+        Token operator_token = next_token();
+        Expression *right = parse_binary_expression(precedence);
+        left = new BinaryExpr(left, operator_token, right);
+    }
+
+    return left;
 }
 
 Tree* Parser::parse()

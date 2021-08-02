@@ -99,15 +99,35 @@ BoundExpr *Binder::bind_binary_expr(BinaryExpr *syntax)
     return new BoundBinaryExpr(bound_left, bound_operator, bound_right);
 }
 
+BoundExpr* Binder::bind_paren_expr(ParenExpr *syntax)
+{
+    return bind_expr(syntax->expr);
+}
+
+BoundExpr* Binder::bind_name_expr(NameExpr *syntax)
+{
+    
+}
+
+BoundExpr* Binder::bind_assignment_expr(AssignmentExpr *syntax)
+{
+
+}
+
 BoundExpr *Binder::bind_expr(Expression *syntax)
 {
-    if (LiteralExpr *literal_expr = dynamic_cast<LiteralExpr *>(syntax))
+    if (auto literal_expr = dynamic_cast<LiteralExpr*>(syntax))
         return bind_literal_expr(literal_expr);
-    if (UnaryExpr *unary_expr = dynamic_cast<UnaryExpr *>(syntax))
+    else if (auto unary_expr = dynamic_cast<UnaryExpr*>(syntax))
         return bind_unary_expr(unary_expr);
-    if (BinaryExpr *binary_expr = dynamic_cast<BinaryExpr *>(syntax))
+    else if (auto binary_expr = dynamic_cast<BinaryExpr*>(syntax))
         return bind_binary_expr(binary_expr);
-    if (ParenExpr *paren_expr = dynamic_cast<ParenExpr *>(syntax))
-        return bind_expr(paren_expr->expr);
-    runtime_error("Unexpected syntax <%s>\n", kinds[syntax->kind]);
+    else if (auto paren_expr = dynamic_cast<ParenExpr*>(syntax))
+        return bind_paren_expr(paren_expr);
+    else if (auto name_expr = dynamic_cast<NameExpr*>(syntax))
+        return bind_name_expr(name_expr);
+    else if (auto assignment_expr = dynamic_cast<AssignmentExpr*>(syntax))
+        return bind_assignment_expr(assignment_expr);
+    else
+        runtime_error("Unexpected syntax <%s>\n", kinds[syntax->kind]);
 }

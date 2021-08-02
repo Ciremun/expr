@@ -20,8 +20,10 @@ struct Parser {
     Token current();
     Token next_token();
     Token match_token(Kind kind);
-    Expression *parse_expression(int parent_precedence = 0);
+    Expression *parse_expression();
     Expression *parse_primary_expression();
+    Expression *parse_assignment_expression();
+    Expression *parse_binary_expression(int parent_precedence = 0);
     Tree* parse();
 
     struct Facts {
