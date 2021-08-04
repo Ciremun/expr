@@ -1,12 +1,13 @@
 #ifndef BINDER_H
 #define BINDER_H
 
-#include <string>
 #include <vector>
+#include <string>
 
-#include "expression.h"
 #include "typedef.h"
-#include "util.h"
+#include "kind.h"
+#include "diagnostic.h"
+#include "expression.h"
 
 struct BoundNode {
     BoundNodeKind kind;
@@ -20,9 +21,10 @@ struct BoundExpr : BoundNode {
 };
 
 struct BoundLiteralExpr : BoundExpr {
-    Value         value;
+    Value value;
     BoundNodeKind kind = BoundNodeKind::literal_expr;
 
+    BoundLiteralExpr();
     BoundLiteralExpr(Value value, size_t type);
 };
 
@@ -55,30 +57,50 @@ struct BoundBinaryOperator {
 };
 
 struct BoundUnaryExpr : BoundExpr {
-    BoundUnaryOperator     op;
-    BoundExpr *            operand;
-    BoundNodeKind          kind = BoundNodeKind::unary_expr;
+    BoundUnaryOperator *op;
+    BoundExpr *operand;
+    BoundNodeKind kind = BoundNodeKind::unary_expr;
 
-    BoundUnaryExpr(BoundUnaryOperator op, BoundExpr *operand);
+    BoundUnaryExpr(BoundUnaryOperator *op, BoundExpr *operand);
 };
 
 struct BoundBinaryExpr : BoundExpr {
-    BoundExpr *             left;
-    BoundBinaryOperator     op;
-    BoundExpr *             right;
-    BoundNodeKind           kind = BoundNodeKind::binary_expr;
+    BoundExpr *left;
+    BoundBinaryOperator*op;
+    BoundExpr *right;
+    BoundNodeKind kind = BoundNodeKind::binary_expr;
 
-    BoundBinaryExpr(BoundExpr *left, BoundBinaryOperator op, BoundExpr *right);
+    BoundBinaryExpr(BoundExpr *left, BoundBinaryOperator *op, BoundExpr *right);
 };
 
+struct BoundVariableExpression : BoundExpr {
+    std::string name;
+    BoundNodeKind kind = BoundNodeKind::variable_expr;
+
+    BoundVariableExpression(std::string name, size_t type);
+};
+
+struct BoundAssignmentExpr : BoundExpr {
+    std::string name;
+    BoundExpr *expr;
+    BoundNodeKind kind = BoundNodeKind::assignment_expr;
+
+    BoundAssignmentExpr(std::string name, BoundExpr *expr);
+};
 
 struct Binder {
-    std::vector<std::string> errors;
+    DiagnosticBag* diagnostics = new DiagnosticBag();
+    Vars *variables;
 
-    BoundExpr *             bind_literal_expr(LiteralExpr *syntax);
-    BoundExpr *             bind_unary_expr(UnaryExpr *syntax);
-    BoundExpr *             bind_binary_expr(BinaryExpr *syntax);
-    BoundExpr *             bind_expr(Expression *syntax);
+    Binder(Vars *variables);
+
+    BoundExpr* bind_literal_expr(LiteralExpr *syntax);
+    BoundExpr* bind_unary_expr(UnaryExpr *syntax);
+    BoundExpr* bind_binary_expr(BinaryExpr *syntax);
+    BoundExpr* bind_paren_expr(ParenExpr *syntax);
+    BoundExpr* bind_name_expr(NameExpr *syntax);
+    BoundExpr* bind_assignment_expr(AssignmentExpr *syntax);
+    BoundExpr* bind_expr(Expression *syntax);
 };
 
 #endif // BINDER_H

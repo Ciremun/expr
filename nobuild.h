@@ -72,7 +72,7 @@ int closedir(DIR *dirp);
 #endif  // MINIRENT_H_
 // minirent.h HEADER END ////////////////////////////////////////
 
-// TODO: use GetLastErrorAsString everywhere on Windows error reporting
+// TODO(#28): use GetLastErrorAsString everywhere on Windows error reporting
 LPSTR GetLastErrorAsString(void);
 
 #endif  // _WIN32
@@ -200,6 +200,66 @@ void chain_echo(Chain chain);
         chain_run_sync(chain);                                          \
     } while(0)
 
+#ifndef REBUILD_URSELF
+#  if _WIN32
+#    if defined(__GNUC__)
+#       define REBUILD_URSELF(binary_path, source_path) CMD("gcc", "-o", binary_path, source_path)
+#    elif defined(__clang__)
+#       define REBUILD_URSELF(binary_path, source_path) CMD("clang", "-o", binary_path, source_path)
+#    elif defined(_MSC_VER)
+#       define REBUILD_URSELF(binary_path, source_path) CMD("cl.exe", source_path)
+#    endif
+#  else
+#    define REBUILD_URSELF(binary_path, source_path) CMD("cc", "-o", binary_path, source_path)
+#  endif
+#endif
+
+// Go Rebuild Urself™ Technology
+//
+//   How to use it:
+//     int main(int argc, char** argv) {
+//         GO_REBUILD_URSELF(argc, argv);
+//         // actual work
+//         return 0;
+//     }
+//
+//   After your added this macro every time you run ./nobuild it will detect
+//   that you modified its original source code and will try to rebuild itself
+//   before doing any actual work. So you only need to bootstrap your build system
+//   once.
+//
+//   The modification is detected by comparing the last modified times of the executable
+//   and its source code. The same way the make utility usually does it.
+//
+//   The rebuilding is done by using the REBUILD_URSELF macro which you can redefine
+//   if you need a special way of bootstraping your build system. (which I personally
+//   do not recommend since the whole idea of nobuild is to keep the process of bootstrapping
+//   as simple as possible and doing all of the actual work inside of the nobuild)
+//
+#define GO_REBUILD_URSELF(argc, argv)                                  \
+    do {                                                               \
+        const char *source_path = __FILE__;                            \
+        assert(argc >= 1);                                             \
+        const char *binary_path = argv[0];                             \
+                                                                       \
+        if (is_path1_modified_after_path2(source_path, binary_path)) { \
+            RENAME(binary_path, CONCAT(binary_path, ".old"));          \
+            REBUILD_URSELF(binary_path, source_path);                  \
+            Cmd cmd = {                                                \
+                .line = {                                              \
+                    .elems = (Cstr*) argv,                             \
+                    .count = argc,                                     \
+                },                                                     \
+            };                                                         \
+            INFO("CMD: %s", cmd_show(cmd));                            \
+            cmd_run_sync(cmd);                                         \
+            exit(0);                                                   \
+        }                                                              \
+    } while(0)
+// The implementation idea is stolen from https://github.com/zhiayang/nabs
+
+void rebuild_urself(const char *binary_path, const char *source_path);
+
 int path_is_dir(Cstr path);
 #define IS_DIR(path) path_is_dir(path)
 
@@ -212,6 +272,13 @@ void path_mkdirs(Cstr_Array path);
         Cstr_Array path = cstr_array_make(__VA_ARGS__, NULL);   \
         INFO("MKDIRS: %s", cstr_array_join(PATH_SEP, path));    \
         path_mkdirs(path);                                      \
+    } while (0)
+
+void path_rename(Cstr old_path, Cstr new_path);
+#define RENAME(old_path, new_path)                    \
+    do {                                              \
+        INFO("RENAME: %s -> %s", old_path, new_path); \
+        path_rename(old_path, new_path);              \
     } while (0)
 
 void path_rm(Cstr path);
@@ -622,7 +689,7 @@ void pid_wait(Pid pid)
 
 Cstr cmd_show(Cmd cmd)
 {
-    // TODO: cmd_show does not render the command line properly
+    // TODO(#31): cmd_show does not render the command line properly
     // - No string literals when arguments contains space
     // - No escaping of special characters
     // - Etc.
@@ -640,7 +707,7 @@ Pid cmd_run_async(Cmd cmd, Fd *fdin, Fd *fdout)
     // NOTE: theoretically setting NULL to std handles should not be a problem
     // https://docs.microsoft.com/en-us/windows/console/getstdhandle?redirectedfrom=MSDN#attachdetach-behavior
     siStartInfo.hStdError = GetStdHandle(STD_ERROR_HANDLE);
-    // TODO: check for errors in GetStdHandle
+    // TODO(#32): check for errors in GetStdHandle
     siStartInfo.hStdOutput = fdout ? *fdout : GetStdHandle(STD_OUTPUT_HANDLE);
     siStartInfo.hStdInput = fdin ? *fdin : GetStdHandle(STD_INPUT_HANDLE);
     siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
@@ -651,7 +718,7 @@ Pid cmd_run_async(Cmd cmd, Fd *fdin, Fd *fdout)
     BOOL bSuccess =
         CreateProcess(
             NULL,
-            // TODO: cmd_run_async on Windows does not render command line properly
+            // TODO(#33): cmd_run_async on Windows does not render command line properly
             // It may require wrapping some arguments with double-quotes if they contains spaces, etc.
             cstr_array_join(" ", cmd.line),
             NULL,
@@ -876,6 +943,7 @@ int path_exists(Cstr path)
     struct stat statbuf = {0};
     if (stat(path, &statbuf) < 0) {
         if (errno == ENOENT) {
+            errno = 0;
             return 0;
         }
 
@@ -906,6 +974,21 @@ int path_is_dir(Cstr path)
     }
 
     return S_ISDIR(statbuf.st_mode);
+#endif // _WIN32
+}
+
+void path_rename(const char *old_path, const char *new_path)
+{
+#ifdef _WIN32
+    if (!MoveFileEx(old_path, new_path, MOVEFILE_REPLACE_EXISTING)) {
+        PANIC("could not rename %s to %s: %s", old_path, new_path,
+              GetLastErrorAsString());
+    }
+#else
+    if (rename(old_path, new_path) < 0) {
+        PANIC("could not rename %s to %s: %s", old_path, new_path,
+              strerror(errno));
+    }
 #endif // _WIN32
 }
 
@@ -977,6 +1060,41 @@ void path_rm(Cstr path)
     }
 }
 
+int is_path1_modified_after_path2(const char *path1, const char *path2)
+{
+#ifdef _WIN32
+    FILETIME path1_time, path2_time;
+
+    Fd path1_fd = fd_open_for_read(path1);
+    if (!GetFileTime(path1_fd, NULL, NULL, &path1_time)) {
+        PANIC("could not get time of %s: %s", path1, GetLastErrorAsString());
+    }
+    fd_close(path1_fd);
+
+    Fd path2_fd = fd_open_for_read(path2);
+    if (!GetFileTime(path2_fd, NULL, NULL, &path2_time)) {
+        PANIC("could not get time of %s: %s", path2, GetLastErrorAsString());
+    }
+    fd_close(path2_fd);
+
+    return CompareFileTime(&path1_time, &path2_time) == 1;
+#else
+    struct stat statbuf = {0};
+
+    if (stat(path1, &statbuf) < 0) {
+        PANIC("could not stat %s: %s\n", path1, strerror(errno));
+    }
+    int path1_time = statbuf.st_mtime;
+
+    if (stat(path2, &statbuf) < 0) {
+        PANIC("could not stat %s: %s\n", path2, strerror(errno));
+    }
+    int path2_time = statbuf.st_mtime;
+
+    return path1_time > path2_time;
+#endif
+}
+
 void VLOG(FILE *stream, Cstr tag, Cstr fmt, va_list args)
 {
     fprintf(stream, "[%s] ", tag);
@@ -988,7 +1106,7 @@ void INFO(Cstr fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
-    VLOG(stdout, "INFO", fmt, args);
+    VLOG(stderr, "INFO", fmt, args);
     va_end(args);
 }
 

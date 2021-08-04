@@ -1,8 +1,0 @@
-#include "binder.cpp"
-#include "eval.cpp"
-#include "expression.cpp"
-#include "lexer.cpp"
-#include "parser.cpp"
-#include "token.cpp"
-#include "tree.cpp"
-#include "util.cpp"

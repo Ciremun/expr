@@ -3,7 +3,6 @@
 
 #include <cstdio>
 #include <memory>
-#include <stdexcept>
 #include <string>
 #include <type_traits>
 
@@ -14,13 +13,13 @@ bool is_digit(char c);
 size char_to_digit(char c);
 bool string_to_size(const std::string &str, usize *out);
 
-template <typename T>
-using base_type = typename std::remove_cv<typename std::remove_reference<T>::type>::type;
-
 template <typename... Args>
 [[noreturn]] void runtime_error(const char *fmt, Args... args)
 {
-    printf(fmt, args...);
+    if constexpr (!sizeof...(args))
+        puts(fmt);
+    else
+        printf(fmt, args...);
     exit(1);
 }
 
@@ -30,7 +29,7 @@ std::string format(const std::string &format, Args... args)
 {
     int size_s = std::snprintf(nullptr, 0, format.c_str(), args...) + 1;
     if (size_s <= 0)
-        throw std::runtime_error("Error during formatting.");
+        runtime_error("Error during formatting");
     auto sz = static_cast<size>(size_s);
     auto buf = std::make_unique<char[]>(sz);
     std::snprintf(buf.get(), sz, format.c_str(), args...);

@@ -2,21 +2,22 @@
 #define TYPEDEF_H
 
 #include <variant>
+#include <string>
+#include <unordered_map>
 
 #include "kind.h"
 
-typedef long long int          size;
+typedef long long int size;
 typedef unsigned long long int usize;
-using Value = std::variant<size, usize, float, bool, const char *, std::string, BoundNodeKind>;
+using Value = std::variant<std::nullptr_t, size, bool, std::string, BoundNodeKind>;
+using Vars = std::unordered_map<std::string, Value>;
 
-constexpr const char *variant_types[] = {
+const char *const variant_types[] = {
+    "std::nullptr_t",
     "size",
-    "usize",
-    "float",
     "bool",
-    "const char *",
     "std::string",
-    "BoundNodeKind"
+    "BoundNodeKind",
 };
 
 static_assert(sizeof(variant_types) / sizeof(variant_types[0]) == std::variant_size_v<Value>, "update variant_types[]");

@@ -14,6 +14,7 @@ enum Kind : int {
     forward_slash_token,
     identifier_token,
     bang_token,
+    equals_token,
     double_ampersand_token,
     double_pipe_token,
     double_equals_token,
@@ -23,6 +24,8 @@ enum Kind : int {
     unary_expr,
     binary_expr,
     paren_expr,
+    name_expr,
+    assignment_expr,
 
     true_keyword,
     false_keyword,
@@ -30,7 +33,7 @@ enum Kind : int {
     count
 };
 
-constexpr const char *kinds[] = {
+const char *const kinds[] = {
     "eof_token",
     "error_token",
     "number_token",
@@ -43,6 +46,7 @@ constexpr const char *kinds[] = {
     "forward_slash_token",
     "identifier_token",
     "bang_token",
+    "equals_token",
     "double_ampersand_token",
     "double_pipe_token",
     "double_equals_token",
@@ -51,6 +55,8 @@ constexpr const char *kinds[] = {
     "unary_expr",
     "binary_expr",
     "paren_expr",
+    "name_expr",
+    "assignment_expr",
     "true_keyword",
     "false_keyword",
 };
@@ -60,7 +66,9 @@ static_assert(sizeof(kinds) / sizeof(kinds[0]) == Kind::count, "update kinds[]")
 enum class BoundNodeKind {
     literal_expr,
     unary_expr,
-    binary_expr
+    binary_expr,
+    variable_expr,
+    assignment_expr
 };
 
 enum class BoundUnaryOperatorKind {

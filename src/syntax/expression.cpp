@@ -14,3 +14,9 @@ ParenExpr::ParenExpr(Token open_paren, Expression *expr, Token close_paren)
 
 UnaryExpr::UnaryExpr(Token op, Expression *operand)
     : op(op), operand(operand) {}
+
+NameExpr::NameExpr(Token identifier)
+    : identifier(identifier) {}
+
+AssignmentExpr::AssignmentExpr(Token identifier, Token equals, Expression *expr)
+    : identifier(identifier), equals(equals), expr(expr) {}

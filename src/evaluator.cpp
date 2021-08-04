@@ -1,7 +1,8 @@
-#include "eval.h"
+#include "evaluator.h"
+#include "util.h"
 
-Eval::Eval(BoundExpr *root)
-    : root(root) {}
+Eval::Eval(BoundExpr *root, Vars *variables)
+    : root(root), variables(variables) {}
 
 Value Eval::evaluate()
 {
@@ -10,14 +11,19 @@ Value Eval::evaluate()
 
 Value Eval::evaluate_expr(BoundExpr *expr)
 {
-    if (BoundLiteralExpr *literal_expr = dynamic_cast<BoundLiteralExpr *>(expr)) {
+    if (BoundLiteralExpr *literal_expr = dynamic_cast<BoundLiteralExpr*>(expr)) {
         return literal_expr->value;
-    }
-    if (BoundBinaryExpr *binary_expr = dynamic_cast<BoundBinaryExpr *>(expr)) {
+    } else if (BoundVariableExpression *variable_expr = dynamic_cast<BoundVariableExpression*>(expr)) {
+        return variables->at(variable_expr->name);
+    } else if (BoundAssignmentExpr *assignment_expr = dynamic_cast<BoundAssignmentExpr*>(expr)) {
+        Value value = evaluate_expr(assignment_expr->expr);
+        variables->insert_or_assign(assignment_expr->name, value);
+        return nullptr;
+    } else if (BoundBinaryExpr *binary_expr = dynamic_cast<BoundBinaryExpr*>(expr)) {
         Value left_val = evaluate_expr(binary_expr->left);
         Value right_val = evaluate_expr(binary_expr->right);
 
-        switch (binary_expr->op.kind) {
+        switch (binary_expr->op->kind) {
         case BoundBinaryOperatorKind::Addition:
             return std::get<size>(left_val) + std::get<size>(right_val);
         case BoundBinaryOperatorKind::Subtraction:
@@ -65,11 +71,10 @@ Value Eval::evaluate_expr(BoundExpr *expr)
         default:
             runtime_error("unexpected binary operator: %s\n", binary_expr->kind);
         }
-    }
-    if (BoundUnaryExpr *unary_expr = dynamic_cast<BoundUnaryExpr *>(expr)) {
+    } else if (BoundUnaryExpr *unary_expr = dynamic_cast<BoundUnaryExpr*>(expr)) {
         Value value = evaluate_expr(unary_expr->operand);
 
-        switch (unary_expr->op.kind) {
+        switch (unary_expr->op->kind) {
         case BoundUnaryOperatorKind::Identity:
             return std::get<size>(value);
         case BoundUnaryOperatorKind::Negation:
@@ -81,4 +86,29 @@ Value Eval::evaluate_expr(BoundExpr *expr)
         }
     }
     runtime_error("unexpected expr: %s\n", expr->kind);
+}
+
+EvaluationResult::EvaluationResult(DiagnosticBag* diagnostics, Value value)
+    : diagnostics(diagnostics), value(value) {}
+
+Compilation::Compilation(Tree *syntax)
+    : syntax(syntax) {}
+
+EvaluationResult* Compilation::evaluate(Vars *variables)
+{
+    Binder* binder = new Binder(variables);
+    BoundExpr* bound_expr = binder->bind_expr(syntax->root);
+
+    syntax->diagnostics->content.insert(
+        syntax->diagnostics->content.end(),
+        std::make_move_iterator(binder->diagnostics->content.begin()),
+        std::make_move_iterator(binder->diagnostics->content.end()));
+
+    if (!syntax->diagnostics->content.empty()) {
+        return new EvaluationResult(syntax->diagnostics, nullptr);
+    }
+
+    Eval* evaluator = new Eval(bound_expr, variables);
+    Value value = evaluator->evaluate();
+    return new EvaluationResult(syntax->diagnostics, value);
 }

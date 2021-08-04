@@ -1,13 +1,15 @@
 #include <iostream>
-#include <iterator>
 #include <string>
+#include <unordered_map>
 
-#include "eval.h"
+#include "evaluator.h"
 #include "tree.h"
 #include "util.h"
+#include "typedef.h"
 
 int main()
 {
+    auto variables = new std::unordered_map<std::string, Value>();
     while (std::cin) {
         printf("> ");
         std::string input;
@@ -15,30 +17,31 @@ int main()
         if (input.empty()) {
             continue;
         }
-        Tree       tree = tree.parse(input);
-        Binder     binder;
-        BoundExpr *bound_expr = binder.bind_expr(tree.root);
+        Tree* tree = Tree::parse(input);
+        Compilation* compilation = new Compilation(tree);
+        EvaluationResult* result = compilation->evaluate(variables);
 
-        tree.errors.insert(
-            tree.errors.end(),
-            std::make_move_iterator(binder.errors.begin()),
-            std::make_move_iterator(binder.errors.end()));
-
-        if (!tree.errors.empty()) {
-            for (auto &err : tree.errors) {
-                printf("%s\n", err.c_str());
+        if (!result->diagnostics->content.empty()) {
+            for (auto &err : result->diagnostics->content) {
+                printf("[ERROR] %s\n", err->message.c_str());
             }
         } else {
-            Eval  eval(bound_expr);
-            Value result = eval.evaluate();
-            std::visit([](auto &&val) {
-                if constexpr (std::is_same_v<bool, base_type<decltype(val)>>) {
-                    std::cout << (val ? "true" : "false") << std::endl;
-                } else if constexpr (std::is_same_v<size, base_type<decltype(val)>>) {
-                    std::cout << val << std::endl;
+            std::visit(overload {
+                [](bool val)
+                {
+                    printf("%s\n", val ? "true" : "false");
+                },
+                [](size val)
+                {
+                    printf("%lld\n", val);
+                },
+                [](std::nullptr_t) {},
+                [](auto)
+                {
+                    runtime_error("unreachable");
                 }
             },
-            result);
+            result->value);
         }
     }
     return 0;
