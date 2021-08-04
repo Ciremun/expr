@@ -1,4 +1,4 @@
-#include "parser.h"
+#include "parse.h"
 #include "lexer.h"
 
 Parser::Parser(std::string text)
@@ -84,7 +84,7 @@ Expression *Parser::parse_primary_expression()
 Expression *Parser::parse_assignment_expression()
 {
     if (peek(0).kind == Kind::identifier_token &&
-            peek(1).kind == Kind::double_equals_token) {
+            peek(1).kind == Kind::equals_token) {
         Token identifier = next_token();
         Token op = next_token();
         Expression *right = parse_assignment_expression();

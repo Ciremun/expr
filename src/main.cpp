@@ -1,12 +1,15 @@
 #include <iostream>
 #include <string>
+#include <unordered_map>
 
 #include "evaluator.h"
 #include "tree.h"
 #include "util.h"
+#include "typedef.h"
 
 int main()
 {
+    auto variables = new std::unordered_map<std::string, Value>();
     while (std::cin) {
         printf("> ");
         std::string input;
@@ -16,7 +19,7 @@ int main()
         }
         Tree* tree = Tree::parse(input);
         Compilation* compilation = new Compilation(tree);
-        EvaluationResult* result = compilation->evaluate();
+        EvaluationResult* result = compilation->evaluate(variables);
 
         if (!result->diagnostics->content.empty()) {
             for (auto &err : result->diagnostics->content) {
@@ -32,6 +35,7 @@ int main()
                 {
                     printf("%lld\n", val);
                 },
+                [](std::nullptr_t) {},
                 [](auto)
                 {
                     runtime_error("unreachable");

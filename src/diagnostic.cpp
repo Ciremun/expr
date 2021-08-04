@@ -41,3 +41,9 @@ void DiagnosticBag::report_undefined_binary_operator(TextSpan *span, std::string
     std::string message = format("Binary operator <%s> is not defined for types <%s> and <%s>", text.c_str(), variant_types[left_type], variant_types[right_type]);
     report(span, message);
 }
+
+void DiagnosticBag::report_undefined_name(TextSpan *span, std::string name)
+{
+    std::string message = format("Variable <%s> doesn't exist", name.c_str());
+    report(span, message);
+}

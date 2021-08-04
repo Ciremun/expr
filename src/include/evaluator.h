@@ -2,6 +2,8 @@
 #define EVALUATOR_H
 
 #include <vector>
+#include <string>
+#include <unordered_map>
 
 #include "binder.h"
 #include "typedef.h"
@@ -10,8 +12,10 @@
 
 struct Eval {
     BoundExpr *root;
+    Vars *variables;
 
-    Eval(BoundExpr *root);
+    Eval(BoundExpr *root, Vars *variables);
+
     Value evaluate();
     Value evaluate_expr(BoundExpr *expr);
 };
@@ -28,7 +32,7 @@ struct Compilation {
 
     Compilation(Tree *syntax);
 
-    EvaluationResult* evaluate();
+    EvaluationResult* evaluate(Vars *variables);
 };
 
 #endif // EVALUATOR_H

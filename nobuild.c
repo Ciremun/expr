@@ -1,8 +1,8 @@
 #define NOBUILD_IMPLEMENTATION
 #include "nobuild.h"
 
-#define CFLAGS "-Wall", "-Wextra", "-pedantic", "-std=c++17", "-I./src/include/"
-#define MSVC_FLAGS "/std:c++17", "/Isrc/include/"
+#define CFLAGS "-Wall", "-Wextra", "-pedantic", "-std=c++20", "-I./src/include/"
+#define MSVC_FLAGS "/std:c++20", "/Isrc/include/"
 
 #define PROCESSES_CAPACITY 256
 

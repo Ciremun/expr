@@ -1,5 +1,5 @@
-#ifndef PARSER_H
-#define PARSER_H
+#ifndef PARSE_H
+#define PARSE_H
 
 #include <string>
 #include <vector>
@@ -33,4 +33,4 @@ struct Parser {
     };
 };
 
-#endif // PARSER_H
+#endif // PARSE_H

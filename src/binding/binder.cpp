@@ -7,11 +7,20 @@ BoundExpr::BoundExpr(size_t type)
 BoundUnaryExpr::BoundUnaryExpr(BoundUnaryOperator *op, BoundExpr *operand)
     : BoundExpr(op->result_type), op(op), operand(operand) {}
 
+BoundLiteralExpr::BoundLiteralExpr()
+    : BoundExpr(0), value(nullptr) {}
+
 BoundLiteralExpr::BoundLiteralExpr(Value value, size_t type)
     : BoundExpr(type), value(value) {}
 
 BoundBinaryExpr::BoundBinaryExpr(BoundExpr *left, BoundBinaryOperator *op, BoundExpr *right)
     : BoundExpr(op->result_type), left(left), op(op), right(right) {}
+
+BoundVariableExpression::BoundVariableExpression(std::string name, size_t type)
+    : BoundExpr(type), name(name) {}
+
+BoundAssignmentExpr::BoundAssignmentExpr(std::string name, BoundExpr *expr)
+    : BoundExpr(expr->type), name(name), expr(expr) {}
 
 BoundUnaryOperator::BoundUnaryOperator(Kind syntax_kind, BoundUnaryOperatorKind kind, size_t operand_type)
     : syntax_kind(syntax_kind), kind(kind), operand_type(operand_type), result_type(operand_type) {}
@@ -71,6 +80,9 @@ BoundBinaryOperator* BoundBinaryOperator::Bind(Kind syntax_kind, size_t left_typ
     return nullptr;
 }
 
+Binder::Binder(Vars *variables)
+    : variables(variables) {}
+
 BoundExpr *Binder::bind_literal_expr(LiteralExpr *syntax)
 {
     return new BoundLiteralExpr(syntax->value, syntax->value.index());
@@ -106,27 +118,46 @@ BoundExpr* Binder::bind_paren_expr(ParenExpr *syntax)
 
 BoundExpr* Binder::bind_name_expr(NameExpr *syntax)
 {
-    
+    std::string name = syntax->identifier.text;
+    if (!variables->contains(name)) {
+        diagnostics->report_undefined_name(syntax->identifier.span, name);
+        return new BoundLiteralExpr();
+    }
+    Value &value = variables->at(name);
+    size_t type = value.index();
+    return new BoundVariableExpression(name, type);
 }
 
 BoundExpr* Binder::bind_assignment_expr(AssignmentExpr *syntax)
 {
-
+    std::string name = syntax->identifier.text;
+    BoundExpr *bound_expr = bind_expr(syntax->expr);
+    Value default_value =
+        bound_expr->type == variant_index<Value, size>()
+        ? Value(0)
+        :
+        bound_expr->type == variant_index<Value, bool>()
+        ? Value(false)
+        : Value(nullptr);
+    if (std::holds_alternative<std::nullptr_t>(default_value))
+        runtime_error("unsupported variable type: %s\n", variant_types[bound_expr->type]);
+    // variables->insert({name, default_value});
+    return new BoundAssignmentExpr(name, bound_expr);
 }
 
 BoundExpr *Binder::bind_expr(Expression *syntax)
 {
-    if (auto literal_expr = dynamic_cast<LiteralExpr*>(syntax))
+    if (LiteralExpr* literal_expr = dynamic_cast<LiteralExpr*>(syntax))
         return bind_literal_expr(literal_expr);
-    else if (auto unary_expr = dynamic_cast<UnaryExpr*>(syntax))
+    else if (UnaryExpr* unary_expr = dynamic_cast<UnaryExpr*>(syntax))
         return bind_unary_expr(unary_expr);
-    else if (auto binary_expr = dynamic_cast<BinaryExpr*>(syntax))
+    else if (BinaryExpr* binary_expr = dynamic_cast<BinaryExpr*>(syntax))
         return bind_binary_expr(binary_expr);
-    else if (auto paren_expr = dynamic_cast<ParenExpr*>(syntax))
+    else if (ParenExpr* paren_expr = dynamic_cast<ParenExpr*>(syntax))
         return bind_paren_expr(paren_expr);
-    else if (auto name_expr = dynamic_cast<NameExpr*>(syntax))
+    else if (NameExpr* name_expr = dynamic_cast<NameExpr*>(syntax))
         return bind_name_expr(name_expr);
-    else if (auto assignment_expr = dynamic_cast<AssignmentExpr*>(syntax))
+    else if (AssignmentExpr* assignment_expr = dynamic_cast<AssignmentExpr*>(syntax))
         return bind_assignment_expr(assignment_expr);
     else
         runtime_error("Unexpected syntax <%s>\n", kinds[syntax->kind]);

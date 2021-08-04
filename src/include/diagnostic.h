@@ -23,6 +23,7 @@ struct DiagnosticBag {
     void report_unexpected_token(TextSpan *span, Kind error_kind, Kind expected_kind);
     void report_undefined_unary_operator(TextSpan *span, std::string text, size_t type);
     void report_undefined_binary_operator(TextSpan *span, std::string text, size_t left_type, size_t right_type);
+    void report_undefined_name(TextSpan *span, std::string name);
 };
 
 #endif // DIAGNOSTIC_H

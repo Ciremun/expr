@@ -66,7 +66,9 @@ static_assert(sizeof(kinds) / sizeof(kinds[0]) == Kind::count, "update kinds[]")
 enum class BoundNodeKind {
     literal_expr,
     unary_expr,
-    binary_expr
+    binary_expr,
+    variable_expr,
+    assignment_expr
 };
 
 enum class BoundUnaryOperatorKind {

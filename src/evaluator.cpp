@@ -1,8 +1,8 @@
 #include "evaluator.h"
 #include "util.h"
 
-Eval::Eval(BoundExpr *root)
-    : root(root) {}
+Eval::Eval(BoundExpr *root, Vars *variables)
+    : root(root), variables(variables) {}
 
 Value Eval::evaluate()
 {
@@ -11,10 +11,15 @@ Value Eval::evaluate()
 
 Value Eval::evaluate_expr(BoundExpr *expr)
 {
-    if (BoundLiteralExpr *literal_expr = dynamic_cast<BoundLiteralExpr *>(expr)) {
+    if (BoundLiteralExpr *literal_expr = dynamic_cast<BoundLiteralExpr*>(expr)) {
         return literal_expr->value;
-    }
-    if (BoundBinaryExpr *binary_expr = dynamic_cast<BoundBinaryExpr *>(expr)) {
+    } else if (BoundVariableExpression *variable_expr = dynamic_cast<BoundVariableExpression*>(expr)) {
+        return variables->at(variable_expr->name);
+    } else if (BoundAssignmentExpr *assignment_expr = dynamic_cast<BoundAssignmentExpr*>(expr)) {
+        Value value = evaluate_expr(assignment_expr->expr);
+        variables->insert_or_assign(assignment_expr->name, value);
+        return nullptr;
+    } else if (BoundBinaryExpr *binary_expr = dynamic_cast<BoundBinaryExpr*>(expr)) {
         Value left_val = evaluate_expr(binary_expr->left);
         Value right_val = evaluate_expr(binary_expr->right);
 
@@ -66,8 +71,7 @@ Value Eval::evaluate_expr(BoundExpr *expr)
         default:
             runtime_error("unexpected binary operator: %s\n", binary_expr->kind);
         }
-    }
-    if (BoundUnaryExpr *unary_expr = dynamic_cast<BoundUnaryExpr *>(expr)) {
+    } else if (BoundUnaryExpr *unary_expr = dynamic_cast<BoundUnaryExpr*>(expr)) {
         Value value = evaluate_expr(unary_expr->operand);
 
         switch (unary_expr->op->kind) {
@@ -90,9 +94,9 @@ EvaluationResult::EvaluationResult(DiagnosticBag* diagnostics, Value value)
 Compilation::Compilation(Tree *syntax)
     : syntax(syntax) {}
 
-EvaluationResult* Compilation::evaluate()
+EvaluationResult* Compilation::evaluate(Vars *variables)
 {
-    Binder* binder = new Binder();
+    Binder* binder = new Binder(variables);
     BoundExpr* bound_expr = binder->bind_expr(syntax->root);
 
     syntax->diagnostics->content.insert(
@@ -104,7 +108,7 @@ EvaluationResult* Compilation::evaluate()
         return new EvaluationResult(syntax->diagnostics, nullptr);
     }
 
-    Eval* evaluator = new Eval(bound_expr);
+    Eval* evaluator = new Eval(bound_expr, variables);
     Value value = evaluator->evaluate();
     return new EvaluationResult(syntax->diagnostics, value);
 }

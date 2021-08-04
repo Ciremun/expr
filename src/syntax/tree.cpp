@@ -1,5 +1,5 @@
 #include "tree.h"
-#include "parser.h"
+#include "parse.h"
 
 Tree::Tree(DiagnosticBag* diagnostics, Expression *root, Token eof)
     : diagnostics(diagnostics), root(root), eof(eof) {}
