@@ -119,7 +119,7 @@ BoundExpr* Binder::bind_paren_expr(ParenExpr *syntax)
 BoundExpr* Binder::bind_name_expr(NameExpr *syntax)
 {
     std::string name = syntax->identifier.text;
-    if (!variables->contains(name)) {
+    if (variables->find(name) == variables->end()) {
         diagnostics->report_undefined_name(syntax->identifier.span, name);
         return new BoundLiteralExpr();
     }
