@@ -2,7 +2,7 @@
 #include "nobuild.h"
 
 #define CFLAGS "-Wall", "-Wextra", "-pedantic", "-std=c++20", "-I./src/include/"
-#define MSVC_FLAGS "/std:c++20", "/Isrc/include/"
+#define MSVC_FLAGS "/std:c++latest", "/Isrc/include/"
 
 #define PROCESSES_CAPACITY 256
 

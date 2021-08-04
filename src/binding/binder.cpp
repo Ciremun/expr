@@ -134,7 +134,7 @@ BoundExpr* Binder::bind_assignment_expr(AssignmentExpr *syntax)
     BoundExpr *bound_expr = bind_expr(syntax->expr);
     Value default_value =
         bound_expr->type == variant_index<Value, size>()
-        ? Value(0)
+        ? Value(static_cast<size>(0))
         :
         bound_expr->type == variant_index<Value, bool>()
         ? Value(false)
