@@ -1,26 +1,26 @@
 #include "binder.h"
 #include "util.h"
 
-BoundExpr::BoundExpr(size_t type)
-    : type(type) {}
+BoundExpr::BoundExpr(size_t type, BoundNodeKind kind)
+    : type(type), kind(kind) {}
 
 BoundUnaryExpr::BoundUnaryExpr(BoundUnaryOperator *op, BoundExpr *operand)
-    : BoundExpr(op->result_type), op(op), operand(operand) {}
+    : BoundExpr(op->result_type, BoundNodeKind::unary_expr), op(op), operand(operand) {}
 
 BoundLiteralExpr::BoundLiteralExpr()
-    : BoundExpr(0), value(nullptr) {}
+    : BoundExpr(0, BoundNodeKind::literal_expr), value(nullptr) {}
 
 BoundLiteralExpr::BoundLiteralExpr(Value value, size_t type)
-    : BoundExpr(type), value(value) {}
+    : BoundExpr(type, BoundNodeKind::literal_expr), value(value) {}
 
 BoundBinaryExpr::BoundBinaryExpr(BoundExpr *left, BoundBinaryOperator *op, BoundExpr *right)
-    : BoundExpr(op->result_type), left(left), op(op), right(right) {}
+    : BoundExpr(op->result_type, BoundNodeKind::binary_expr), left(left), op(op), right(right) {}
 
 BoundVariableExpression::BoundVariableExpression(std::string name, size_t type)
-    : BoundExpr(type), name(name) {}
+    : BoundExpr(type, BoundNodeKind::variable_expr), name(name) {}
 
 BoundAssignmentExpr::BoundAssignmentExpr(std::string name, BoundExpr *expr)
-    : BoundExpr(expr->type), name(name), expr(expr) {}
+    : BoundExpr(expr->type, BoundNodeKind::assignment_expr), name(name), expr(expr) {}
 
 BoundUnaryOperator::BoundUnaryOperator(Kind syntax_kind, BoundUnaryOperatorKind kind, size_t operand_type)
     : syntax_kind(syntax_kind), kind(kind), operand_type(operand_type), result_type(operand_type) {}
@@ -147,18 +147,20 @@ BoundExpr* Binder::bind_assignment_expr(AssignmentExpr *syntax)
 
 BoundExpr *Binder::bind_expr(Expression *syntax)
 {
-    if (LiteralExpr* literal_expr = dynamic_cast<LiteralExpr*>(syntax))
-        return bind_literal_expr(literal_expr);
-    else if (UnaryExpr* unary_expr = dynamic_cast<UnaryExpr*>(syntax))
-        return bind_unary_expr(unary_expr);
-    else if (BinaryExpr* binary_expr = dynamic_cast<BinaryExpr*>(syntax))
-        return bind_binary_expr(binary_expr);
-    else if (ParenExpr* paren_expr = dynamic_cast<ParenExpr*>(syntax))
-        return bind_paren_expr(paren_expr);
-    else if (NameExpr* name_expr = dynamic_cast<NameExpr*>(syntax))
-        return bind_name_expr(name_expr);
-    else if (AssignmentExpr* assignment_expr = dynamic_cast<AssignmentExpr*>(syntax))
-        return bind_assignment_expr(assignment_expr);
-    else
+    switch (syntax->kind) {
+    case Kind::literal_expr:
+        return bind_literal_expr(static_cast<LiteralExpr*>(syntax));
+    case Kind::unary_expr:
+        return bind_unary_expr(static_cast<UnaryExpr*>(syntax));
+    case Kind::binary_expr:
+        return bind_binary_expr(static_cast<BinaryExpr*>(syntax));
+    case Kind::paren_expr:
+        return bind_paren_expr(static_cast<ParenExpr*>(syntax));
+    case Kind::name_expr:
+        return bind_name_expr(static_cast<NameExpr*>(syntax));
+    case Kind::assignment_expr:
+        return bind_assignment_expr(static_cast<AssignmentExpr*>(syntax));
+    default:
         runtime_error("Unexpected syntax <%s>\n", kinds[syntax->kind]);
+    }
 }

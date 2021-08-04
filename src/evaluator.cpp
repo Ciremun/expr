@@ -11,19 +11,27 @@ Value Eval::evaluate()
 
 Value Eval::evaluate_expr(BoundExpr *expr)
 {
-    if (BoundLiteralExpr *literal_expr = dynamic_cast<BoundLiteralExpr*>(expr)) {
-        return literal_expr->value;
-    } else if (BoundVariableExpression *variable_expr = dynamic_cast<BoundVariableExpression*>(expr)) {
-        return variables->at(variable_expr->name);
-    } else if (BoundAssignmentExpr *assignment_expr = dynamic_cast<BoundAssignmentExpr*>(expr)) {
-        Value value = evaluate_expr(assignment_expr->expr);
-        variables->insert_or_assign(assignment_expr->name, value);
+    switch (expr->kind) {
+    case BoundNodeKind::literal_expr: {
+        BoundLiteralExpr *e = static_cast<BoundLiteralExpr*>(expr);
+        return e->value;
+    }
+    case BoundNodeKind::variable_expr: {
+        BoundVariableExpression *e = static_cast<BoundVariableExpression*>(expr);
+        return variables->at(e->name);
+    }
+    case BoundNodeKind::assignment_expr: {
+        BoundAssignmentExpr *e = static_cast<BoundAssignmentExpr*>(expr);
+        Value value = evaluate_expr(e->expr);
+        variables->insert_or_assign(e->name, value);
         return nullptr;
-    } else if (BoundBinaryExpr *binary_expr = dynamic_cast<BoundBinaryExpr*>(expr)) {
-        Value left_val = evaluate_expr(binary_expr->left);
-        Value right_val = evaluate_expr(binary_expr->right);
+    }
+    case BoundNodeKind::binary_expr: {
+        BoundBinaryExpr *e = static_cast<BoundBinaryExpr*>(expr);
+        Value left_val = evaluate_expr(e->left);
+        Value right_val = evaluate_expr(e->right);
 
-        switch (binary_expr->op->kind) {
+        switch (e->op->kind) {
         case BoundBinaryOperatorKind::Addition:
             return std::get<size>(left_val) + std::get<size>(right_val);
         case BoundBinaryOperatorKind::Subtraction:
@@ -69,12 +77,14 @@ Value Eval::evaluate_expr(BoundExpr *expr)
                 }
             }, left_val, right_val);
         default:
-            runtime_error("unexpected binary operator: %s\n", binary_expr->kind);
+            runtime_error("unexpected binary operator: %s\n", e->kind);
         }
-    } else if (BoundUnaryExpr *unary_expr = dynamic_cast<BoundUnaryExpr*>(expr)) {
-        Value value = evaluate_expr(unary_expr->operand);
+    }
+    case BoundNodeKind::unary_expr: {
+        BoundUnaryExpr *e = static_cast<BoundUnaryExpr*>(expr);
+        Value value = evaluate_expr(e->operand);
 
-        switch (unary_expr->op->kind) {
+        switch (e->op->kind) {
         case BoundUnaryOperatorKind::Identity:
             return std::get<size>(value);
         case BoundUnaryOperatorKind::Negation:
@@ -82,10 +92,12 @@ Value Eval::evaluate_expr(BoundExpr *expr)
         case BoundUnaryOperatorKind::LogicalNegation:
             return !(std::get<bool>(value));
         default:
-            runtime_error("unexpected unary operator: %s\n", unary_expr->kind);
+            runtime_error("unexpected unary operator: %s\n", e->kind);
         }
     }
-    runtime_error("unexpected expr: %s\n", expr->kind);
+    default:
+        runtime_error("unexpected expr: %s\n", expr->kind);
+    }
 }
 
 EvaluationResult::EvaluationResult(DiagnosticBag* diagnostics, Value value)

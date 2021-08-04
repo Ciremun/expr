@@ -9,20 +9,16 @@
 #include "diagnostic.h"
 #include "expression.h"
 
-struct BoundNode {
-    BoundNodeKind kind;
-};
-
-struct BoundExpr : BoundNode {
+struct BoundExpr {
     size_t type;
+    BoundNodeKind kind;
 
-    BoundExpr(size_t type);
+    BoundExpr(size_t type, BoundNodeKind kind);
     virtual ~BoundExpr() = default;
 };
 
 struct BoundLiteralExpr : BoundExpr {
     Value value;
-    BoundNodeKind kind = BoundNodeKind::literal_expr;
 
     BoundLiteralExpr();
     BoundLiteralExpr(Value value, size_t type);
@@ -59,7 +55,6 @@ struct BoundBinaryOperator {
 struct BoundUnaryExpr : BoundExpr {
     BoundUnaryOperator *op;
     BoundExpr *operand;
-    BoundNodeKind kind = BoundNodeKind::unary_expr;
 
     BoundUnaryExpr(BoundUnaryOperator *op, BoundExpr *operand);
 };
@@ -68,14 +63,12 @@ struct BoundBinaryExpr : BoundExpr {
     BoundExpr *left;
     BoundBinaryOperator*op;
     BoundExpr *right;
-    BoundNodeKind kind = BoundNodeKind::binary_expr;
 
     BoundBinaryExpr(BoundExpr *left, BoundBinaryOperator *op, BoundExpr *right);
 };
 
 struct BoundVariableExpression : BoundExpr {
     std::string name;
-    BoundNodeKind kind = BoundNodeKind::variable_expr;
 
     BoundVariableExpression(std::string name, size_t type);
 };
@@ -83,7 +76,6 @@ struct BoundVariableExpression : BoundExpr {
 struct BoundAssignmentExpr : BoundExpr {
     std::string name;
     BoundExpr *expr;
-    BoundNodeKind kind = BoundNodeKind::assignment_expr;
 
     BoundAssignmentExpr(std::string name, BoundExpr *expr);
 };
